@@ -36,14 +36,18 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateCategory(
-            @PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto) {
-        try {
-            categoryService.updateCategory(categoryDto, id);
-            return ResponseEntity.ok("Update category successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    public ResponseEntity<?> updateCategory(
+            @PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto, BindingResult result
+    ) {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        categoryService.updateCategory(categoryDto, id);
+        return ResponseEntity.ok("Update category successfully!");
     }
 
     @GetMapping
@@ -64,11 +68,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
-        try {
-            categoryService.deleteCategory(id);
-            return ResponseEntity.ok("Delete category successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        categoryService.deleteCategory(id);
+        return ResponseEntity.ok("Delete category successfully!");
     }
 }

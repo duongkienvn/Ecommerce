@@ -7,7 +7,6 @@ import com.project.shopapp.model.dto.ProductImageDto;
 import com.project.shopapp.model.response.ProductListResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.service.IProductService;
-import jakarta.transaction.Status;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,29 +39,21 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            ProductEntity newProduct = productService.createProduct(productDto);
-            return ResponseEntity.ok(newProduct);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        ProductEntity newProduct = productService.createProduct(productDto);
+        return ResponseEntity.ok(newProduct);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
-        try {
-            ProductEntity existingProduct = productService.getProductById(id);
-            return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        ProductEntity existingProduct = productService.getProductById(id);
+        return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
     }
 
     @GetMapping
@@ -81,29 +71,21 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDto productDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            ProductEntity existingProduct = productService.updateProduct(id, productDto);
-            return ResponseEntity.ok(existingProduct);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        ProductEntity existingProduct = productService.updateProduct(id, productDto);
+        return ResponseEntity.ok(existingProduct);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deleteProduct(id);
-            return ResponseEntity.ok("Deleting product successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        productService.deleteProduct(id);
+        return ResponseEntity.ok("Deleting product successfully!");
     }
 
     private boolean isImageFile(MultipartFile file) {

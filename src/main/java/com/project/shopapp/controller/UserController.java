@@ -6,7 +6,6 @@ import com.project.shopapp.model.dto.UserLoginDto;
 import com.project.shopapp.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -26,31 +25,23 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDto userDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            if (!userDto.getPassword().equals(userDto.getRetypePassword())) {
-                return ResponseEntity.badRequest().body("Password doesn't match!");
-            }
-            UserEntity user = userService.createUser(userDto);
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        if (!userDto.getPassword().equals(userDto.getRetypePassword())) {
+            return ResponseEntity.badRequest().body("Password doesn't match!");
+        }
+        UserEntity user = userService.createUser(userDto);
+        return ResponseEntity.ok(user);
     }
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@Valid @RequestBody UserLoginDto userLoginDto) {
-        try {
-            String token = userService.login(userLoginDto);
-            return ResponseEntity.ok(token);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        String token = userService.login(userLoginDto);
+        return ResponseEntity.ok(token);
     }
 }

@@ -1,19 +1,14 @@
 package com.project.shopapp.authentication;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -23,53 +18,24 @@ public class JwtService {
     @Value("${jwt.secretKey}")
     private String secretKey;
 
-    public String generateToken(String phoneNumber) {
-        Map<String, Object> claims = new HashMap<>();
+    public String generateToken(String phoneNumber) throws KeyLengthException {
+        JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
 
-        return Jwts.builder()
-                .claims()
-                .add(claims)
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
                 .subject(phoneNumber)
-                .expiration(new Date(System.currentTimeMillis() + expiration))
-                .issuedAt(new Date())
                 .issuer("admin")
-                .and()
-                .signWith(getKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+                .issueTime(new Date(System.currentTimeMillis() + expiration))
+                .build();
 
-    public SecretKey getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
+        Payload payload = new Payload(claimsSet.toJSONObject());
+        JWSObject object = new JWSObject(header, payload);
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
-    }
+        try {
+            object.sign(new MACSigner(secretKey.getBytes()));
+        } catch (JOSEException e) {
+            throw new RuntimeException(e);
+        }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
-        Claims claims = extractAllClaims(token);
-        return claimResolver.apply(claims);
-    }
-
-    public Claims extractAllClaims(String token) {
-        return Jwts.parser()
-                .verifyWith(getKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
-
-    public boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
-    }
-
-    public boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    public Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return object.serialize();
     }
 }

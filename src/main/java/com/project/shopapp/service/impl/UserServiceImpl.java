@@ -1,5 +1,6 @@
 package com.project.shopapp.service.impl;
 
+import com.nimbusds.jose.KeyLengthException;
 import com.project.shopapp.authentication.JwtService;
 import com.project.shopapp.converter.UserConverter;
 import com.project.shopapp.entity.RoleEntity;
@@ -79,7 +80,11 @@ public class UserServiceImpl implements IUserService {
                 = new UsernamePasswordAuthenticationToken(phoneNumber, password);
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(phoneNumber);
+            try {
+                return jwtService.generateToken(phoneNumber);
+            } catch (KeyLengthException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return null;

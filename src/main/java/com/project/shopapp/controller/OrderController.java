@@ -24,55 +24,39 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            OrderEntity newOrder = orderService.createOrder(orderDto);
-            return ResponseEntity.ok(newOrder);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        OrderEntity newOrder = orderService.createOrder(orderDto);
+        return ResponseEntity.ok(newOrder);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(orderService.getOrderById(id));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderDto orderDto, BindingResult result) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            OrderEntity order = orderService.updateOrder(orderDto, id);
-            return ResponseEntity.ok(order);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(errorMessages);
         }
+        OrderEntity order = orderService.updateOrder(orderDto, id);
+        return ResponseEntity.ok(order);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteOrder(@PathVariable Long id) {
-        try {
-            orderService.deleteOrder(id);
-            return ResponseEntity.ok("Deleting Order successfully!");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+        orderService.deleteOrder(id);
+        return ResponseEntity.ok("Deleting Order successfully!");
     }
 
     @GetMapping("/user/{user_id}")

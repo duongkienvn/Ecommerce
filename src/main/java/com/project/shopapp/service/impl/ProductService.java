@@ -1,5 +1,6 @@
 package com.project.shopapp.service.impl;
 
+import com.project.shopapp.converter.ProductRequestMapper;
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
@@ -7,6 +8,7 @@ import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.InvalidParamException;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
+import com.project.shopapp.model.request.ProductRequest;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.repository.ProductImageRepository;
@@ -15,10 +17,12 @@ import com.project.shopapp.service.ICategoryService;
 import com.project.shopapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -95,5 +99,18 @@ public class ProductService implements IProductService {
                 .build();
 
         return productImageRepository.save(newProductImage);
+    }
+
+    @Override
+    public Page<ProductResponse> findProduct(Map<String, Object> productMap, PageRequest pageRequest) {
+        ProductRequest productRequest = ProductRequestMapper.toProductRequest(productMap);
+        Page<ProductEntity> productEntities = productRepository.findProduct(productRequest, pageRequest);
+
+        List<ProductResponse> productResponses = productEntities
+                .stream()
+                .map(ProductResponse::fromProduct)
+                .toList();
+
+        return new PageImpl<>(productResponses, pageRequest, productEntities.getTotalElements());
     }
 }

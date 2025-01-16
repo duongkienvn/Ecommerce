@@ -26,16 +26,30 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
 @RequiredArgsConstructor
 public class ProductController {
     private final IProductService productService;
+
+    @GetMapping("/search")
+    public ResponseEntity<?> findProduct(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "10") int limit,
+            @RequestParam Map<String, Object> productMap) {
+
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("name"));
+        Page<ProductResponse> productResponsePage = productService.findProduct(productMap, pageRequest);
+        List<ProductResponse> productResponseList = productResponsePage.getContent();
+        int totalPages = productResponsePage.getTotalPages();
+
+        return ResponseEntity.ok(ProductListResponse.builder()
+                .productResponseList(productResponseList)
+                .totalPages(totalPages)
+                .build());
+    }
 
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
@@ -47,7 +61,7 @@ public class ProductController {
             return ResponseEntity.badRequest().body(errorMessages);
         }
         ProductEntity newProduct = productService.createProduct(productDto);
-        return ResponseEntity.ok(newProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
     @GetMapping("/{id}")

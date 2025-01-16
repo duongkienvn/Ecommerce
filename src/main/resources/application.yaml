@@ -19,6 +19,14 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  security:
+    oauth2:
+        client:
+          registration:
+            github:
+              client-id: Ov23li2eZwOx10LGCSxF
+              client-secret: e1cd2cc0bb34b5cb976ad5ee353fe340965fb8ad
+
 api:
   prefix: api
 jwt:

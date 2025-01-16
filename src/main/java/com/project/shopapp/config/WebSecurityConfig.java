@@ -1,6 +1,8 @@
 package com.project.shopapp.config;
 
+import com.project.shopapp.authentication.CustomJwtDecoder;
 import com.project.shopapp.entity.RoleEntity;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -20,9 +24,9 @@ import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
-    @Value("${jwt.secretKey}")
-    private String secretKey;
+    private final CustomJwtDecoder customJwtDecoder;
 
     @Value("${api.prefix}")
     private String apiPrefix;
@@ -39,7 +43,10 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(
                                         String.format("%s/users/register", apiPrefix),
-                                        String.format("%s/users/login", apiPrefix)).permitAll()
+                                        String.format("%s/users/login", apiPrefix),
+                                        String.format("%s/auth/logout", apiPrefix),
+                                        String.format("%s/auth/refresh", apiPrefix))
+                                .permitAll()
                                 .requestMatchers(GET,
                                         categoryPath, productPath, orderPath, orderDetailPath)
                                 .hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
@@ -55,17 +62,23 @@ public class WebSecurityConfig {
                                 .hasRole(RoleEntity.ADMIN)
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .oauth2ResourceServer(oath2 -> oath2.jwt(jwtCustomizer -> jwtCustomizer.decoder(jwtDecoder())))
+                .oauth2ResourceServer(oath2 -> oath2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
 
     @Bean
-    public JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HS256");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+
+        return jwtAuthenticationConverter;
     }
 }

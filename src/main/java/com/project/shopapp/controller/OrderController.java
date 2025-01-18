@@ -24,14 +24,7 @@ public class OrderController {
     private final IOrderService orderService;
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDto orderDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderDto orderDto) {
         OrderEntity newOrder = orderService.createOrder(orderDto);
         return ResponseEntity.ok(newOrder);
     }
@@ -42,14 +35,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderDto orderDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> updateOrder(@PathVariable Long id, @Valid @RequestBody OrderDto orderDto) {
         OrderEntity order = orderService.updateOrder(orderDto, id);
         return ResponseEntity.ok(order);
     }

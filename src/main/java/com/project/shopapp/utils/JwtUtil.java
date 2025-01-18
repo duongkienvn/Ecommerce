@@ -7,7 +7,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.project.shopapp.entity.InvalidatedTokenEntity;
 import com.project.shopapp.entity.UserEntity;
+import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.DataNotFoundException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.exception.UnauthenticationException;
 import com.project.shopapp.model.request.LogoutRequest;
 import com.project.shopapp.model.request.RefreshRequest;
@@ -71,11 +73,11 @@ public class JwtUtil {
         boolean verified = signedJWT.verify(verifier);
 
         if (!(verified && expiredTime.after(new Date()))) {
-            throw new UnauthenticationException("Unauthenticated!");
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         if (invalidatedTokenRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID())) {
-            throw new UnauthenticationException("Unauthenticated!");
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         return signedJWT;
@@ -113,7 +115,7 @@ public class JwtUtil {
         String phoneNumber = signedJWT.getJWTClaimsSet().getSubject();
         UserEntity user = userRepostiory
                 .findByPhoneNumber(phoneNumber)
-                .orElseThrow(() -> new UnauthenticationException("Unauthenticated!"));
+                .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         String newToken = generateToken(user);
 

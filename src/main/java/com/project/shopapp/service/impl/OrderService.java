@@ -3,7 +3,9 @@ package com.project.shopapp.service.impl;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.entity.UserEntity;
 import com.project.shopapp.enums.OrderStatus;
+import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.DataNotFoundException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDto;
 import com.project.shopapp.repository.OrderRepository;
 import com.project.shopapp.repository.UserRepostiory;
@@ -28,7 +30,7 @@ public class OrderService implements IOrderService {
     @Override
     public OrderEntity createOrder(OrderDto orderDto) {
         UserEntity user = userRepostiory.findById(orderDto.getUserId())
-                .orElseThrow(() -> new DataNotFoundException("User doesn't exsist!"));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         modelMapper.typeMap(OrderDto.class, OrderEntity.class)
                 .addMappings(mapper -> mapper.skip(OrderEntity::setId));
@@ -40,7 +42,7 @@ public class OrderService implements IOrderService {
         order.setStatus(OrderStatus.PENDING.getStatus());
         LocalDate shippingDate = orderDto.getShippingDate() == null ? LocalDate.now() : orderDto.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Shipping date must not before the current date!");
+            throw new AppException(ErrorCode.INVALID_DATE);
         }
         order.setShippingDate(shippingDate);
         order.setActive(true);
@@ -53,7 +55,7 @@ public class OrderService implements IOrderService {
     public OrderEntity getOrderById(Long id) {
         OrderEntity order = orderRepository
                 .findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
         return order;
     }
 
@@ -61,14 +63,14 @@ public class OrderService implements IOrderService {
     public OrderEntity updateOrder(OrderDto orderDto, Long id) {
         OrderEntity existingOrder = getOrderById(id);
         UserEntity existingUser = userRepostiory.findById(orderDto.getUserId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find user with id: " + orderDto.getUserId()));
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         modelMapper.typeMap(OrderDto.class, OrderEntity.class)
                 .addMappings(mapper -> mapper.skip(OrderEntity::setId));
         modelMapper.map(orderDto, existingOrder);
         LocalDate shippingDate = orderDto.getShippingDate() == null ? LocalDate.now() : orderDto.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Shipping date must not before the current date!");
+            throw new AppException(ErrorCode.INVALID_DATE);
         }
         existingOrder.setShippingDate(shippingDate);
         existingOrder.setUser(existingUser);

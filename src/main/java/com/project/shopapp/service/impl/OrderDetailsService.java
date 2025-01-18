@@ -3,7 +3,9 @@ package com.project.shopapp.service.impl;
 import com.project.shopapp.entity.OrderDetailsEntity;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.entity.ProductEntity;
+import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.DataNotFoundException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDetailsDto;
 import com.project.shopapp.repository.OrderDetailsRepository;
 import com.project.shopapp.repository.OrderRepository;
@@ -26,10 +28,10 @@ public class OrderDetailsService implements IOrderDetailsService {
     @Override
     public OrderDetailsEntity createOrderDetails(OrderDetailsDto orderDetailsDto) {
         OrderEntity existingOrder = orderRepository.findById(orderDetailsDto.getOrderId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + orderDetailsDto.getOrderId()));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         ProductEntity existingProduct = productRepository.findById(orderDetailsDto.getProductId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find product with id: " + orderDetailsDto.getProductId()));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         OrderDetailsEntity newOrderDetails = OrderDetailsEntity
                 .builder()
@@ -47,13 +49,13 @@ public class OrderDetailsService implements IOrderDetailsService {
     @Override
     public OrderDetailsEntity updateOrderDetails(Long id, OrderDetailsDto orderDetailsDto) {
         OrderDetailsEntity existingOrderDetails = orderDetailsRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order details with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAILS_NOT_FOUND));
 
         OrderEntity existingOrder = orderRepository.findById(orderDetailsDto.getOrderId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order with id: " + orderDetailsDto.getOrderId()));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
         ProductEntity existingProduct = productRepository.findById(orderDetailsDto.getProductId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find product with id: " + orderDetailsDto.getProductId()));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         existingOrderDetails.setPrice(orderDetailsDto.getPrice());
         existingOrderDetails.setTotalMoney(orderDetailsDto.getTotalMoney());
@@ -68,7 +70,7 @@ public class OrderDetailsService implements IOrderDetailsService {
     @Override
     public OrderDetailsEntity getOrderDetailsById(Long id) {
         return orderDetailsRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find order details with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAILS_NOT_FOUND));
     }
 
     @Override

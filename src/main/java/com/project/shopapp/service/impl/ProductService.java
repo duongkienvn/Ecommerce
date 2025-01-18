@@ -4,7 +4,9 @@ import com.project.shopapp.converter.ProductRequestMapper;
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
+import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.DataNotFoundException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.exception.InvalidParamException;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
@@ -34,7 +36,7 @@ public class ProductService implements IProductService {
     @Override
     public ProductEntity createProduct(ProductDto productDto) {
         CategoryEntity existingCategory = categoryRepository.findById(productDto.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category with id: " + productDto.getCategoryId()));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         ProductEntity newProduct = ProductEntity.builder()
                 .name(productDto.getName())
@@ -51,14 +53,14 @@ public class ProductService implements IProductService {
     public ProductEntity getProductById(Long id) {
         return productRepository
                 .findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find product with id: " + id));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
     }
 
     @Override
     public ProductEntity updateProduct(Long id, ProductDto productDto) {
         ProductEntity existingProduct = getProductById(id);
         CategoryEntity existingCategory = categoryRepository.findById(productDto.getCategoryId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category with id: " + productDto.getCategoryId()));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
         existingProduct.setName(productDto.getName());
         existingProduct.setPrice(productDto.getPrice());
@@ -89,8 +91,7 @@ public class ProductService implements IProductService {
                 = productImageRepository.getProductImageEntitiesByProductEntityId(productImageDto.getProductId());
 
         if (productImageEntities.size() > ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT) {
-            throw new InvalidParamException("The number of image must <= "
-                    + ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT);
+            throw new InvalidParamException("");
         }
 
         ProductImageEntity newProductImage = ProductImageEntity.builder()

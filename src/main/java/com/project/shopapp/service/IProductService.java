@@ -18,6 +18,6 @@ public interface IProductService {
     ProductEntity updateProduct(Long id, ProductDto productDto);
     Page<ProductResponse> getAllProducts(PageRequest pageRequest);
     void deleteProduct(Long id);
-    ProductImageEntity createProductImage(ProductImageDto productImageDto) throws Exception;
+    ProductImageEntity createProductImage(ProductImageDto productImageDto);
     Page<ProductResponse> findProduct(Map<String, Object> productMap, PageRequest pageRequest);
 }

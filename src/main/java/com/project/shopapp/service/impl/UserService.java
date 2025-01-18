@@ -25,7 +25,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements IUserService {
+public class UserService implements IUserService {
     private final UserRepostiory userRepostiory;
     private final RoleRepository roleRepository;
     private final UserConverter userConverter;

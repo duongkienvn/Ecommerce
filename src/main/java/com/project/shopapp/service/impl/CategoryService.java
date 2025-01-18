@@ -2,7 +2,9 @@ package com.project.shopapp.service.impl;
 
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
+import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.DataNotFoundException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.CategoryDto;
 import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.service.ICategoryService;
@@ -48,7 +50,7 @@ public class CategoryService implements ICategoryService {
     public CategoryEntity getCategoryById(Long id) {
         return categoryRepository
                 .findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Category doestn't exsist!"));
+                .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
     }
 
     @Override

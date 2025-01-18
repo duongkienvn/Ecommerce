@@ -1,6 +1,8 @@
 package com.project.shopapp.controller;
 
 import com.project.shopapp.entity.UserEntity;
+import com.project.shopapp.exception.AppException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
 import com.project.shopapp.service.IUserService;
@@ -24,16 +26,9 @@ public class UserController {
     private final IUserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDto userDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> register(@Valid @RequestBody UserDto userDto) {
         if (!userDto.getPassword().equals(userDto.getRetypePassword())) {
-            return ResponseEntity.badRequest().body("Password doesn't match!");
+            throw new AppException(ErrorCode.UNMATCHED_PASSWORD);
         }
         UserEntity user = userService.createUser(userDto);
         return ResponseEntity.ok(user);

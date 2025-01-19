@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -28,7 +29,7 @@ public class UserDto {
     String retypePassword;
 
     @JsonProperty("date_of_birth")
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
 
     @JsonProperty("facebook_account_id")
     int facebookAccountId;

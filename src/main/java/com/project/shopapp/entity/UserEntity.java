@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -34,7 +35,7 @@ public class UserEntity extends BaseEntity {
     int active;
 
     @Column(name = "date_of_birth")
-    Date dateOfBirth;
+    LocalDate dateOfBirth;
 
     @Column(name = "facebook_account_id")
     int facebookAccountId;

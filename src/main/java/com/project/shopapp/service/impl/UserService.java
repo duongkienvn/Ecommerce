@@ -1,13 +1,12 @@
 package com.project.shopapp.service.impl;
 
 import com.nimbusds.jose.KeyLengthException;
+import com.project.shopapp.exception.*;
+import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.utils.JwtUtil;
 import com.project.shopapp.converter.UserConverter;
 import com.project.shopapp.entity.RoleEntity;
 import com.project.shopapp.entity.UserEntity;
-import com.project.shopapp.exception.BadCredentialsException;
-import com.project.shopapp.exception.DataNotFoundException;
-import com.project.shopapp.exception.PermissionDenyException;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
 import com.project.shopapp.repository.RoleRepository;
@@ -34,17 +33,17 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserEntity createUser(UserDto userDto) {
+    public UserResponse createUser(UserDto userDto) {
         String phoneNumber = userDto.getPhoneNumber();
 
         if (userRepostiory.existsByPhoneNumber(phoneNumber)) {
-            throw new DataIntegrityViolationException("Phone number has already existed!");
+            throw new AppException(ErrorCode.DATA_INTEGRITY_VIOLATION);
         }
 
         RoleEntity roleEntity = roleRepository.findById(userDto.getRoleId())
-                .orElseThrow(() -> new DataNotFoundException("Role doesn't exist!"));
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
         if (roleEntity.getName().toUpperCase().equals(RoleEntity.ADMIN)) {
-            throw new PermissionDenyException("You can't register an admin account!");
+            throw new AppException(ErrorCode.PERMISSION_DENY);
         }
 
         UserEntity newUser = userConverter.converToUser(userDto);
@@ -55,8 +54,9 @@ public class UserService implements IUserService {
             String password = userDto.getPassword();
             newUser.setPassword(passwordEncoder.encode(password));
         }
+        userRepostiory.save(newUser);
 
-        return userRepostiory.save(newUser);
+        return userConverter.convertToUserResponse(newUser);
     }
 
     @Override
@@ -66,13 +66,13 @@ public class UserService implements IUserService {
 
         Optional<UserEntity> user = userRepostiory.findByPhoneNumber(phoneNumber);
         if (user.isEmpty()) {
-            throw new DataNotFoundException("Invalid phonenumber or password!");
+            throw new AppException(ErrorCode.DATA_NOT_FOUND);
         }
 
         UserEntity existingUser = user.get();
         if (existingUser.getGoogleAccountId() == 0 && existingUser.getFacebookAccountId() == 0) {
             if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-                throw new BadCredentialsException("Phone number or password is wrong!");
+                throw new AppException(ErrorCode.BAD_CREDENTIALS);
             }
         }
 

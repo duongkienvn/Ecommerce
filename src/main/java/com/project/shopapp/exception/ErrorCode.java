@@ -9,7 +9,7 @@ public enum ErrorCode {
     USER_EXISTED("User existed", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED("Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED("You do not have permission", HttpStatus.FORBIDDEN),
-    DATA_NOT_FOUND("Data doesn't exist!", HttpStatus.NOT_FOUND),
+    DATA_NOT_FOUND("Invalid phonenumber or password!", HttpStatus.BAD_REQUEST),
     VALIDATION_ERROR("Validattion failed!", HttpStatus.BAD_REQUEST),
     UNMATCHED_PASSWORD("Password is unmatched!", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND("Category not found", HttpStatus.BAD_REQUEST),
@@ -17,7 +17,11 @@ public enum ErrorCode {
     ORDER_NOT_FOUND("Order not found", HttpStatus.BAD_REQUEST),
     ORDER_DETAILS_NOT_FOUND("Order_Details not found", HttpStatus.BAD_REQUEST),
     INVALID_DATE("Shipping date must not before the current date!", HttpStatus.BAD_REQUEST),
-    INVALID_PARAM("The number of image must <= %d", HttpStatus.BAD_REQUEST)
+    INVALID_PARAM("The number of image must <= %d", HttpStatus.BAD_REQUEST),
+    BAD_CREDENTIALS("Phone number or password is wrong!", HttpStatus.BAD_REQUEST),
+    PERMISSION_DENY("You can't register an admin account!", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_EXISTED("Role doesn't exist!", HttpStatus.NOT_FOUND),
+    DATA_INTEGRITY_VIOLATION("Phone number has already existed!", HttpStatus.BAD_REQUEST)
     ;
 
 

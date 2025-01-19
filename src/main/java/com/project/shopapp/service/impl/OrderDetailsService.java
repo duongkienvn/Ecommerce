@@ -4,7 +4,6 @@ import com.project.shopapp.entity.OrderDetailsEntity;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.exception.AppException;
-import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDetailsDto;
 import com.project.shopapp.repository.OrderDetailsRepository;

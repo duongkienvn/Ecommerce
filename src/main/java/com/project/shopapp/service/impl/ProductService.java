@@ -5,17 +5,16 @@ import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
 import com.project.shopapp.exception.AppException;
-import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.exception.InvalidParamException;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
 import com.project.shopapp.model.request.ProductRequest;
+import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.repository.ProductImageRepository;
 import com.project.shopapp.repository.ProductRepository;
-import com.project.shopapp.service.ICategoryService;
 import com.project.shopapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +33,7 @@ public class ProductService implements IProductService {
     private final ProductImageRepository productImageRepository;
 
     @Override
-    public ProductEntity createProduct(ProductDto productDto) {
+    public ProductResponse createProduct(ProductDto productDto) {
         CategoryEntity existingCategory = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -45,19 +44,21 @@ public class ProductService implements IProductService {
                 .thumbnail(productDto.getThumbnail())
                 .category(existingCategory)
                 .build();
+        productRepository.save(newProduct);
 
-        return productRepository.save(newProduct);
+        return ProductResponse.fromProduct(newProduct);
     }
 
     @Override
     public ProductEntity getProductById(Long id) {
-        return productRepository
+        ProductEntity existingProduct = productRepository
                 .findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        return existingProduct;
     }
 
     @Override
-    public ProductEntity updateProduct(Long id, ProductDto productDto) {
+    public ProductResponse updateProduct(Long id, ProductDto productDto) {
         ProductEntity existingProduct = getProductById(id);
         CategoryEntity existingCategory = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
@@ -68,7 +69,8 @@ public class ProductService implements IProductService {
         existingProduct.setThumbnail(productDto.getThumbnail());
         existingProduct.setCategory(existingCategory);
 
-        return productRepository.save(existingProduct);
+        productRepository.save(existingProduct);
+        return ProductResponse.fromProduct(existingProduct);
     }
 
     @Override
@@ -85,21 +87,25 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public ProductImageEntity createProductImage(ProductImageDto productImageDto) throws InvalidParamException {
+    public ProductImageResponse createProductImage(ProductImageDto productImageDto) {
         ProductEntity existingProduct = getProductById(productImageDto.getProductId());
         List<ProductImageEntity> productImageEntities
                 = productImageRepository.getProductImageEntitiesByProductEntityId(productImageDto.getProductId());
 
         if (productImageEntities.size() > ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT) {
-            throw new InvalidParamException("");
+            throw new InvalidParamException();
         }
 
         ProductImageEntity newProductImage = ProductImageEntity.builder()
                 .imageUrl(productImageDto.getImageUrl())
                 .productEntity(existingProduct)
                 .build();
+        productImageRepository.save(newProductImage);
 
-        return productImageRepository.save(newProductImage);
+        return ProductImageResponse.builder()
+                .imageUrl(newProductImage.getImageUrl())
+                .productId(newProductImage.getProductEntity().getId())
+                .build();
     }
 
     @Override

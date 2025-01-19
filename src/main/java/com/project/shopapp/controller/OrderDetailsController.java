@@ -20,14 +20,7 @@ public class OrderDetailsController {
     private final IOrderDetailsService orderDetailsService;
 
     @PostMapping
-    public ResponseEntity<?> creatOrderDetails(@Valid @RequestBody OrderDetailsDto orderDetailsDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> creatOrderDetails(@Valid @RequestBody OrderDetailsDto orderDetailsDto) {
         OrderDetailsEntity orderDetailsEntity = orderDetailsService.createOrderDetails(orderDetailsDto);
         return ResponseEntity.ok(OrderDetailsResponse.fromOrderDetails(orderDetailsEntity));
     }
@@ -39,16 +32,8 @@ public class OrderDetailsController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrderDetails(@PathVariable Long id, @Valid @RequestBody OrderDetailsDto orderDetailsDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> updateOrderDetails(@PathVariable Long id, @Valid @RequestBody OrderDetailsDto orderDetailsDto) {
         OrderDetailsEntity existingOrderDetails = orderDetailsService.updateOrderDetails(id, orderDetailsDto);
-        System.out.println();
         return ResponseEntity.ok(OrderDetailsResponse.fromOrderDetails(existingOrderDetails));
     }
 

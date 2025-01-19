@@ -8,9 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import com.project.shopapp.entity.InvalidatedTokenEntity;
 import com.project.shopapp.entity.UserEntity;
 import com.project.shopapp.exception.AppException;
-import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.ErrorCode;
-import com.project.shopapp.exception.UnauthenticationException;
 import com.project.shopapp.model.request.LogoutRequest;
 import com.project.shopapp.model.request.RefreshRequest;
 import com.project.shopapp.repository.InvalidatedTokenRepository;
@@ -18,7 +16,6 @@ import com.project.shopapp.repository.UserRepostiory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.Date;

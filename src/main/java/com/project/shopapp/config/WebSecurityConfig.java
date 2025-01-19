@@ -1,6 +1,8 @@
 package com.project.shopapp.config;
 
+import com.project.shopapp.authentication.CustomAccessDeniedHandler;
 import com.project.shopapp.authentication.CustomJwtDecoder;
+import com.project.shopapp.authentication.CustomAuthenticationEntryPoint;
 import com.project.shopapp.entity.RoleEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,11 +59,13 @@ public class WebSecurityConfig {
                                 .hasRole(RoleEntity.ADMIN)
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oath2 -> oath2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
-                        .jwtAuthenticationConverter(jwtAuthenticationConverter())))
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .exceptionHandling(ex -> ex.accessDeniedHandler(new CustomAccessDeniedHandler())
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .oauth2Login(Customizer.withDefaults())
                 .build();
     }

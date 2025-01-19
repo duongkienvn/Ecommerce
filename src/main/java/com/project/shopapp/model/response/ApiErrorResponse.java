@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -14,26 +15,24 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiErrorResponse {
     HttpStatus status;
     String message;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     List<String> errors;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    LocalDateTime timestamp;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    Date timestamp;
 
     public ApiErrorResponse(HttpStatus status, String message) {
         this.status = status;
         this.message = message;
-        timestamp = LocalDateTime.now();
+        timestamp = new Date();
     }
 
     public ApiErrorResponse(HttpStatus status, String message, List<String> errors) {
         this.status = status;
         this.message = message;
         this.errors = errors;
-        timestamp = LocalDateTime.now();
+        timestamp = new Date();
     }
 }

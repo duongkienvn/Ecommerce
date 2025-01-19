@@ -1,22 +1,15 @@
 package com.project.shopapp.service.impl;
 
 import com.project.shopapp.entity.CategoryEntity;
-import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.exception.AppException;
-import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.CategoryDto;
 import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.service.ICategoryService;
-import com.project.shopapp.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import java.awt.print.Pageable;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

@@ -13,6 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 public class OrderListResponse {
-    private List<OrderEntity> orderEntityList;
+    private List<OrderResponse> orderResponses;
     private int totalPages;
 }

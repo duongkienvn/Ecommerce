@@ -4,6 +4,7 @@ import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
+import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductListResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.service.IProductService;
@@ -52,16 +53,9 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
-        ProductEntity newProduct = productService.createProduct(productDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
+    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(productService.createProduct(productDto));
     }
 
     @GetMapping("/{id}")
@@ -84,16 +78,8 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDto productDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
-        ProductEntity existingProduct = productService.updateProduct(id, productDto);
-        return ResponseEntity.ok(existingProduct);
+    public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDto productDto) {
+        return ResponseEntity.ok(productService.updateProduct(id, productDto));
     }
 
     @DeleteMapping("/{id}")
@@ -129,44 +115,39 @@ public class ProductController {
     @PostMapping(value = "/images/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImages(
             @PathVariable("id") Long productId,
-            @RequestBody List<MultipartFile> files) {
+            @RequestBody List<MultipartFile> files) throws IOException {
 
-        try {
-            ProductEntity existingProduct = productService.getProductById(productId);
-            files = files == null ? new ArrayList<>() : files;
-            if (files.size() > ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT) {
-                return ResponseEntity.badRequest().body("You can only upload maximum 5 images!");
-            }
-
-            long maxSize = 10 * 1024 * 1024; // 10MB
-            List<ProductImageEntity> productImageEntities = new ArrayList<>();
-            for (MultipartFile file : files) {
-                if (file.getSize() == 0) {
-                    continue;
-                }
-
-                if (file.getSize() > maxSize) {
-                    return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                            .body("File is too large! Maximum size is 10MB");
-                }
-
-                if (!isImageFile(file)) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("File must be an image!");
-                }
-
-                String fileName = storeFile(file);
-                ProductImageDto productImageDto = ProductImageDto
-                        .builder()
-                        .productId(productId)
-                        .imageUrl(fileName)
-                        .build();
-                ProductImageEntity productImageEntity = productService.createProductImage(productImageDto);
-                productImageEntities.add(productImageEntity);
-            }
-
-            return ResponseEntity.ok(productImageEntities);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+        ProductEntity existingProduct = productService.getProductById(productId);
+        files = files == null ? new ArrayList<>() : files;
+        if (files.size() > ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT) {
+            return ResponseEntity.badRequest().body("You can only upload maximum 5 images!");
         }
+
+        long maxSize = 10 * 1024 * 1024; // 10MB
+        List<ProductImageResponse> productImageResponses = new ArrayList<>();
+        for (MultipartFile file : files) {
+            if (file.getSize() == 0) {
+                continue;
+            }
+
+            if (file.getSize() > maxSize) {
+                return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+                        .body("File is too large! Maximum size is 10MB");
+            }
+
+            if (!isImageFile(file)) {
+                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("File must be an image!");
+            }
+
+            String fileName = storeFile(file);
+            ProductImageDto productImageDto = ProductImageDto
+                    .builder()
+                    .productId(productId)
+                    .imageUrl(fileName)
+                    .build();
+            ProductImageResponse productImageResponse = productService.createProductImage(productImageDto);
+            productImageResponses.add(productImageResponse);
+        }
+        return ResponseEntity.ok(productImageResponses);
     }
 }

@@ -2,6 +2,7 @@ package com.project.shopapp.converter;
 
 import com.project.shopapp.entity.UserEntity;
 import com.project.shopapp.model.dto.UserDto;
+import com.project.shopapp.model.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -23,5 +24,17 @@ public class UserConverter {
                 .password(userDto.getPassword())
                 .build();
         return user;
+    }
+
+    public UserResponse convertToUserResponse(UserEntity user) {
+        return UserResponse.builder()
+                .id(user.getId())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .dateOfBirth(user.getDateOfBirth())
+                .active(user.getActive())
+                .role(user.getRoleEntity().getName())
+                .build();
     }
 }

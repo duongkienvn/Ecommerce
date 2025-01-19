@@ -30,8 +30,8 @@ public class UserController {
         if (!userDto.getPassword().equals(userDto.getRetypePassword())) {
             throw new AppException(ErrorCode.UNMATCHED_PASSWORD);
         }
-        UserEntity user = userService.createUser(userDto);
-        return ResponseEntity.ok(user);
+
+        return ResponseEntity.ok(userService.createUser(userDto));
     }
 
     @PostMapping("/login")

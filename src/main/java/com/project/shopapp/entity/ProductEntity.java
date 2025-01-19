@@ -33,7 +33,6 @@ public class ProductEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    @JsonIgnore
     CategoryEntity category;
 
     @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.REMOVE)

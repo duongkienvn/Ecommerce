@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -36,7 +37,7 @@ public class OrderEntity {
     String note;
 
     @Column(name = "order_date")
-    Date orderDate;
+    LocalDateTime orderDate;
 
     @Column(name = "status")
     String status;
@@ -64,6 +65,5 @@ public class OrderEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonIgnore
     UserEntity user;
 }

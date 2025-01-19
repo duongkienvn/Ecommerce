@@ -1,6 +1,8 @@
 package com.project.shopapp.authentication;
 
 import com.project.shopapp.entity.UserEntity;
+import com.project.shopapp.exception.AppException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.repository.UserRepostiory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ public class MyUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> user = userRepostiory.findByPhoneNumber(username);
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException("User doesn't exist!");
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
         }
 
         return new MyUserDetails(user.get());

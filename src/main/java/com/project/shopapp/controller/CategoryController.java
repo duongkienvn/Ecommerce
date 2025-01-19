@@ -23,37 +23,22 @@ public class CategoryController {
     private final ICategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult result) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         categoryService.createCategory(categoryDto);
         return ResponseEntity.ok("Insert category successfully!");
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCategory(
-            @PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto, BindingResult result
-    ) {
-        if (result.hasErrors()) {
-            List<String> errorMessages = result.getFieldErrors()
-                    .stream()
-                    .map(FieldError::getDefaultMessage)
-                    .toList();
-            return ResponseEntity.badRequest().body(errorMessages);
-        }
+            @PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto) {
         categoryService.updateCategory(categoryDto, id);
         return ResponseEntity.ok("Update category successfully!");
     }
 
     @GetMapping
     public ResponseEntity<CategoryListResponse> getAllCategories(
-            @RequestParam(value = "page", required = false) int page,
-            @RequestParam(value = "limit", required = false) int limit
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "5") int limit
     ) {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id"));
         Page<CategoryEntity> categoryPage = categoryService.getAllCategories(pageRequest);

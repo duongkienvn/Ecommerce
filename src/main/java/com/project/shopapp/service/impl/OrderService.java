@@ -1,12 +1,13 @@
 package com.project.shopapp.service.impl;
 
+import com.project.shopapp.converter.OrderConverter;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.entity.UserEntity;
 import com.project.shopapp.enums.OrderStatus;
 import com.project.shopapp.exception.AppException;
-import com.project.shopapp.exception.DataNotFoundException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDto;
+import com.project.shopapp.model.response.OrderResponse;
 import com.project.shopapp.repository.OrderRepository;
 import com.project.shopapp.repository.UserRepostiory;
 import com.project.shopapp.service.IOrderService;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -26,9 +28,10 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final UserRepostiory userRepostiory;
     private final ModelMapper modelMapper;
+    private final OrderConverter orderConverter;
 
     @Override
-    public OrderEntity createOrder(OrderDto orderDto) {
+    public OrderResponse createOrder(OrderDto orderDto) {
         UserEntity user = userRepostiory.findById(orderDto.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -38,7 +41,7 @@ public class OrderService implements IOrderService {
         OrderEntity order = new OrderEntity();
         modelMapper.map(orderDto, order);
         order.setUser(user);
-        order.setOrderDate(new Date());
+        order.setOrderDate(LocalDateTime.now());
         order.setStatus(OrderStatus.PENDING.getStatus());
         LocalDate shippingDate = orderDto.getShippingDate() == null ? LocalDate.now() : orderDto.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
@@ -48,7 +51,8 @@ public class OrderService implements IOrderService {
         order.setActive(true);
         orderRepository.save(order);
 
-        return order;
+        OrderResponse orderResponse = orderConverter.convertToOrderResponse(order);
+        return orderResponse;
     }
 
     @Override
@@ -60,7 +64,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public OrderEntity updateOrder(OrderDto orderDto, Long id) {
+    public OrderResponse updateOrder(OrderDto orderDto, Long id) {
         OrderEntity existingOrder = getOrderById(id);
         UserEntity existingUser = userRepostiory.findById(orderDto.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -75,7 +79,7 @@ public class OrderService implements IOrderService {
         existingOrder.setShippingDate(shippingDate);
         existingOrder.setUser(existingUser);
 
-        return existingOrder;
+        return orderConverter.convertToOrderResponse(existingOrder);
     }
 
     @Override
@@ -86,13 +90,17 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderEntity> findOrderByUserId(Long userId) {
+    public List<OrderResponse> findOrderByUserId(Long userId) {
         List<OrderEntity> orderEntities = orderRepository.findOrderEntitiesByUserId(userId);
-        return orderEntities;
+        return orderEntities
+                .stream()
+                .map(order -> orderConverter.convertToOrderResponse(order))
+                .toList();
     }
 
     @Override
-    public Page<OrderEntity> getAllOrders(PageRequest pageRequest) {
-        return orderRepository.findAll(pageRequest);
+    public Page<OrderResponse> getAllOrders(PageRequest pageRequest) {
+        Page<OrderEntity> orderEntities = orderRepository.findAll(pageRequest);
+        return orderEntities.map(order -> orderConverter.convertToOrderResponse(order));
     }
 }

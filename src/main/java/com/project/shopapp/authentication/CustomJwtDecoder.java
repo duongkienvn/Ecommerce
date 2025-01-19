@@ -1,12 +1,14 @@
 package com.project.shopapp.authentication;
 
 import com.nimbusds.jose.JOSEException;
-import com.project.shopapp.exception.UnauthenticationException;
+import com.project.shopapp.exception.AppException;
+import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.request.IntrospectRequest;
 import com.project.shopapp.model.response.IntrospectResponse;
 import com.project.shopapp.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -29,15 +31,18 @@ public class CustomJwtDecoder implements JwtDecoder {
 
     @Override
     public Jwt decode(String token) throws JwtException {
+        IntrospectResponse reponse = null;
         try {
-            IntrospectResponse reponse = authenticationService.introspect(IntrospectRequest.builder()
+            reponse = authenticationService.introspect(IntrospectRequest.builder()
                     .token(token)
                     .build());
-            if (!reponse.isValid()) {
-                throw new UnauthenticationException("Unauthenticated!");
-            }
-        } catch (JOSEException | ParseException e) {
-            throw new JwtException(e.getMessage());
+        } catch (ParseException | JOSEException e) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        if (!reponse.isValid()) {
+            throw new AuthenticationException("") {
+            };
         }
 
         if (Objects.isNull(nimbusJwtDecoder)) {

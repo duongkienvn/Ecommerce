@@ -57,4 +57,14 @@ public class GlobalException {
         ApiErrorResponse apiErrorResponse = new ApiErrorResponse(errorCode.getHttpStatus(), message);
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiErrorResponse);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiErrorResponse> handleAccessDeniedException(AccessDeniedException e) {
+        ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
+                errorCode.getHttpStatus(), errorCode.getMessage()
+        );
+
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiErrorResponse);
+    }
 }

@@ -1,5 +1,6 @@
 package com.project.shopapp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
@@ -18,7 +19,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BaseEntity {
-
     @Column(name = "created_at")
     LocalDateTime createdAt;
 

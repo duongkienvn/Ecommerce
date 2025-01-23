@@ -14,6 +14,8 @@ import com.project.shopapp.repository.UserRepostiory;
 import com.project.shopapp.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -88,5 +90,20 @@ public class UserService implements IUserService {
         }
 
         return null;
+    }
+
+    @Override
+    public UserResponse getUserByPhoneNumber(String phonenumber) {
+        UserEntity existingUser = userRepostiory.findByPhoneNumber(phonenumber)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        return userConverter.convertToUserResponse(existingUser);
+    }
+
+    @Override
+    public Page<UserResponse> findAllUsers(PageRequest pageRequest) {
+        Page<UserEntity> userEntities = userRepostiory.findAll(pageRequest);
+
+        return userEntities.map(user -> userConverter.convertToUserResponse(user));
     }
 }

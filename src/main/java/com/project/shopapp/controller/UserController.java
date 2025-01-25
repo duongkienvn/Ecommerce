@@ -2,6 +2,7 @@ package com.project.shopapp.controller;
 
 import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.ErrorCode;
+import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
 import com.project.shopapp.model.response.UserListResponse;
@@ -61,5 +62,15 @@ public class UserController {
                 .userResponseList(userResponseList)
                 .totalPages(totalPages)
                 .build());
+    }
+
+    @PostMapping("/{id}/change-password")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> changePassword(
+            @PathVariable("id") Long userId,
+            @RequestParam String currentPassword,
+            @RequestBody ChangePassword changePassword) {
+        userService.changePassword(userId, currentPassword, changePassword);
+        return ResponseEntity.ok("Password is updated!");
     }
 }

@@ -21,6 +21,7 @@ public class UserConverter {
                 .facebookAccountId(userDto.getFacebookAccountId())
                 .googleAccountId(userDto.getGoogleAccountId())
                 .active(1)
+                .email(userDto.getEmail())
                 .password(userDto.getPassword())
                 .build();
         return user;
@@ -35,6 +36,7 @@ public class UserConverter {
                 .dateOfBirth(user.getDateOfBirth())
                 .active(user.getActive())
                 .role(user.getRoleEntity().getName())
+                .email(user.getEmail())
                 .build();
     }
 }

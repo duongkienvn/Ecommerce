@@ -33,7 +33,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "password", length = 200, nullable = false)
     String password;
 
-    @Column(name = "is_active", insertable = false)
+    @Column(name = "is_active")
     int active;
 
     @Column(name = "date_of_birth")
@@ -44,6 +44,10 @@ public class UserEntity extends BaseEntity {
 
     @Column(name = "google_account_id")
     int googleAccountId;
+
+    @Column(name = "email", nullable = false,
+            columnDefinition = "VARCHAR(255) COLLATE utf8mp4_unicode_ci")
+    String email;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

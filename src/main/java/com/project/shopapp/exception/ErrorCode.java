@@ -22,7 +22,9 @@ public enum ErrorCode {
     PERMISSION_DENY("You can't register an admin account!", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXISTED("Role doesn't exist!", HttpStatus.NOT_FOUND),
     DATA_INTEGRITY_VIOLATION("Phone number has already existed!", HttpStatus.BAD_REQUEST),
-    COMMENT_NOT_FOUND("Comment not existed!", HttpStatus.NOT_FOUND)
+    COMMENT_NOT_FOUND("Comment not existed!", HttpStatus.NOT_FOUND),
+    EMAIL_NOT_FOUND("Email not existed!", HttpStatus.NOT_FOUND),
+    INVALID_PASSWORD("Current Password is wrong!", HttpStatus.BAD_REQUEST)
     ;
 
     private final String message;

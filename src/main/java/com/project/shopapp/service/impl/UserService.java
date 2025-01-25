@@ -2,6 +2,7 @@ package com.project.shopapp.service.impl;
 
 import com.nimbusds.jose.KeyLengthException;
 import com.project.shopapp.exception.*;
+import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.utils.JwtUtil;
 import com.project.shopapp.converter.UserConverter;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -105,5 +107,42 @@ public class UserService implements IUserService {
         Page<UserEntity> userEntities = userRepostiory.findAll(pageRequest);
 
         return userEntities.map(user -> userConverter.convertToUserResponse(user));
+    }
+
+    @Override
+    public void existByEmail(String email) {
+        boolean emailExists = userRepostiory.existsByEmail(email);
+        if (!emailExists) {
+            throw new AppException(ErrorCode.EMAIL_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void updateByEmailAndPassword(String email, ChangePassword changePassword) {
+        if (!Objects.equals(changePassword.getPassword(), changePassword.getRepeatPassword())) {
+            throw new AppException(ErrorCode.UNMATCHED_PASSWORD);
+        }
+        userRepostiory.updateByEmailAndPassword(email, passwordEncoder.encode(changePassword.getPassword()));
+    }
+
+    @Override
+    public void changePassword(Long userId, String currentPassword, ChangePassword changePassword) {
+        UserEntity user = getById(userId);
+        String password = user.getPassword();
+        if (!passwordEncoder.matches(currentPassword, password)) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+        if (!Objects.equals(changePassword.getPassword(), changePassword.getRepeatPassword())) {
+            throw new AppException(ErrorCode.UNMATCHED_PASSWORD);
+        }
+
+        userRepostiory.updateById(userId, passwordEncoder.encode(changePassword.getPassword()));
+    }
+
+    @Override
+    public UserEntity getById(Long id) {
+        return userRepostiory
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 }

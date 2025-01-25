@@ -29,8 +29,28 @@ spring:
             google:
               client-id: 883269268303-qk6qn8gfafdbuj369u7usosj3h7a3n65.apps.googleusercontent.com
               client-secret: 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
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    default-encoding: UTF-8
+    protocol: smtp
+    properties:
+      mail:
+        mime:
+          charset: UTF-8
+        smtp:
+          writetimeout: 10000
+          connectiontimeout: 10000
+          timeout: 10000
+          auth: true
+          starttls:
+            enabled: true
+            required: true
+    verify:
+      host: ${HOST}
 api:
   prefix: api
 jwt:
   expiration: 2592000 #30 days = 30 * 24 * 60 * 60
-  secretKey: aKE0ouEBSeDTB0iAlZyseYyl6WvlZ6P+JabzAyPfARo=

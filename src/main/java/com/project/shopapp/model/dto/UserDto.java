@@ -1,6 +1,7 @@
 package com.project.shopapp.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -40,4 +41,8 @@ public class UserDto {
     @JsonProperty("role_id")
     @NotNull(message = "Role is required!")
     Long roleId;
+
+    @Email(message = "Email does not correct pattern!")
+    @NotBlank(message = "Email mustnt' blank!")
+    String email;
 }

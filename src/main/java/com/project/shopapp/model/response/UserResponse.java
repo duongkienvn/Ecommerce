@@ -37,4 +37,5 @@ public class UserResponse {
     LocalDate dateOfBirth;
 
     String role;
+    String email;
 }

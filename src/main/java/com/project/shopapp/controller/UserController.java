@@ -5,7 +5,8 @@ import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
-import com.project.shopapp.model.response.UserListResponse;
+import com.project.shopapp.model.request.UserUpdateRequest;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.service.IUserService;
 import jakarta.validation.Valid;
@@ -48,7 +49,7 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserListResponse> getAllUsers(
+    public ResponseEntity<PageResponse> getAllUsers(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "5") int limit
     ) {
@@ -58,8 +59,8 @@ public class UserController {
         List<UserResponse> userResponseList = userResponsePage.getContent();
         int totalPages = userResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(UserListResponse.builder()
-                .userResponseList(userResponseList)
+        return ResponseEntity.ok(PageResponse.builder()
+                .data(userResponseList)
                 .totalPages(totalPages)
                 .build());
     }
@@ -72,5 +73,24 @@ public class UserController {
             @RequestBody ChangePassword changePassword) {
         userService.changePassword(userId, currentPassword, changePassword);
         return ResponseEntity.ok("Password is updated!");
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
+                                        @PathVariable("id") Long userId) {
+        return ResponseEntity.ok(userService.updateUser(userId, userUpdateRequest));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok("Delete user successfully!");
+    }
+
+    @GetMapping("/my-info")
+    public ResponseEntity<?> getMyInfo() {
+        return ResponseEntity.ok(userService.getMyInfo());
     }
 }

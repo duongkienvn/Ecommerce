@@ -2,8 +2,8 @@ package com.project.shopapp.controller;
 
 import com.project.shopapp.model.dto.CommentDto;
 import com.project.shopapp.model.request.CommentUpdateRequest;
-import com.project.shopapp.model.response.CommentListResponse;
 import com.project.shopapp.model.response.CommentResponse;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.service.ICommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,42 +52,25 @@ public class CommentController {
 
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getCommentsByUserId(
-            @PathVariable("id") Long userId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "limit", defaultValue = "5") int limit) {
+    public ResponseEntity<?> getCommentsByUserId(@PathVariable("id") Long userId, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "limit", defaultValue = "5") int limit) {
 
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         Page<CommentResponse> commentResponsePage = commentService.getAllCommentsByUserId(userId, pageRequest);
         List<CommentResponse> commentResponses = commentResponsePage.getContent();
         int totalPages = commentResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(
-                CommentListResponse.builder()
-                        .commentResponses(commentResponses)
-                        .totalPages(totalPages)
-                        .build()
-        );
+        return ResponseEntity.ok(PageResponse.builder().data(commentResponses).totalPages(totalPages).build());
     }
 
     @GetMapping("/products/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getCommentsByProductId(
-            @PathVariable("id") Long productId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "limit", defaultValue = "5") int limit
-    ) {
+    public ResponseEntity<?> getCommentsByProductId(@PathVariable("id") Long productId, @RequestParam(value = "page", defaultValue = "0") int page, @RequestParam(value = "limit", defaultValue = "5") int limit) {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
         Page<CommentResponse> commentResponsePage = commentService.getAllCommentsByProductId(productId, pageRequest);
         List<CommentResponse> commentResponses = commentResponsePage.getContent();
         int totalPages = commentResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(
-                CommentListResponse.builder()
-                        .commentResponses(commentResponses)
-                        .totalPages(totalPages)
-                        .build()
-        );
+        return ResponseEntity.ok(PageResponse.builder().data(commentResponses).totalPages(totalPages).build());
     }
 }
 

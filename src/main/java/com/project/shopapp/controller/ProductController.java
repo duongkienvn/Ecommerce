@@ -4,8 +4,8 @@ import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.ProductImageResponse;
-import com.project.shopapp.model.response.ProductListResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.service.IProductService;
 import jakarta.validation.Valid;
@@ -46,8 +46,8 @@ public class ProductController {
         List<ProductResponse> productResponseList = productResponsePage.getContent();
         int totalPages = productResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(ProductListResponse.builder()
-                .productResponseList(productResponseList)
+        return ResponseEntity.ok(PageResponse.builder()
+                .data(productResponseList)
                 .totalPages(totalPages)
                 .build());
     }
@@ -71,8 +71,8 @@ public class ProductController {
         List<ProductResponse> productResponses = productPage.getContent();
         int totalPages = productPage.getTotalPages();
 
-        return ResponseEntity.ok(ProductListResponse.builder()
-                .productResponseList(productResponses)
+        return ResponseEntity.ok(PageResponse.builder()
+                .data(productResponses)
                 .totalPages(totalPages)
                 .build());
     }

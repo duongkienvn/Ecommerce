@@ -10,7 +10,7 @@ public enum ErrorCode {
     UNAUTHENTICATED("Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED("You do not have permission", HttpStatus.FORBIDDEN),
     DATA_NOT_FOUND("Invalid phonenumber or password!", HttpStatus.BAD_REQUEST),
-    VALIDATION_ERROR("Validattion failed!", HttpStatus.BAD_REQUEST),
+    VALIDATION_ERROR("Validation failed!", HttpStatus.BAD_REQUEST),
     UNMATCHED_PASSWORD("Password is unmatched!", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_FOUND("Category not found", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_FOUND("Product not found", HttpStatus.NOT_FOUND),

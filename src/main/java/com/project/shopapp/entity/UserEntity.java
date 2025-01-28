@@ -52,4 +52,7 @@ public class UserEntity extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "role_id")
     RoleEntity roleEntity;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    CartEntity cartEntity;
 }

@@ -4,7 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.project.shopapp.exception.AppException;
 import com.project.shopapp.model.request.IntrospectRequest;
 import com.project.shopapp.model.response.IntrospectResponse;
-import com.project.shopapp.utils.JwtUtil;
+import com.project.shopapp.utils.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

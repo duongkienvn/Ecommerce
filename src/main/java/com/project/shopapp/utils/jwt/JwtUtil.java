@@ -1,4 +1,4 @@
-package com.project.shopapp.utils;
+package com.project.shopapp.utils.jwt;
 
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;

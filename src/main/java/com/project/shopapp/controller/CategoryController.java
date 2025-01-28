@@ -2,7 +2,7 @@ package com.project.shopapp.controller;
 
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.model.dto.CategoryDto;
-import com.project.shopapp.model.response.CategoryListResponse;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.service.ICategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,7 +34,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    public ResponseEntity<CategoryListResponse> getAllCategories(
+    public ResponseEntity<PageResponse> getAllCategories(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "5") int limit
     ) {
@@ -45,10 +43,9 @@ public class CategoryController {
         int totalPage = categoryPage.getTotalPages();
         List<CategoryEntity> categoryEntities = categoryPage.getContent();
 
-        return ResponseEntity.ok(CategoryListResponse.builder()
-                .categoryEntityList(categoryEntities)
+        return ResponseEntity.ok(PageResponse.builder()
                 .totalPages(totalPage)
-                .build());
+                .data(categoryEntities).build());
     }
 
     @DeleteMapping("/{id}")

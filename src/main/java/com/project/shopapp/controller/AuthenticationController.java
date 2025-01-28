@@ -6,7 +6,7 @@ import com.project.shopapp.model.request.LogoutRequest;
 import com.project.shopapp.model.request.RefreshRequest;
 import com.project.shopapp.service.IOtpService;
 import com.project.shopapp.service.IUserService;
-import com.project.shopapp.utils.JwtUtil;
+import com.project.shopapp.utils.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

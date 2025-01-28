@@ -3,8 +3,8 @@ package com.project.shopapp.controller;
 import com.project.shopapp.converter.OrderConverter;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.model.dto.OrderDto;
-import com.project.shopapp.model.response.OrderListResponse;
 import com.project.shopapp.model.response.OrderResponse;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.service.IOrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,7 +52,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<OrderListResponse> getAllOrders(
+    public ResponseEntity<?> getAllOrders(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "limit", defaultValue = "5") int limit
     ) {
@@ -62,8 +62,8 @@ public class OrderController {
         List<OrderResponse> orderResponses = orderPage.getContent();
         int totalPages = orderPage.getTotalPages();
 
-        return ResponseEntity.ok(OrderListResponse.builder()
-                .orderResponses(orderResponses)
+        return ResponseEntity.ok(PageResponse.builder()
+                .data(orderResponses)
                 .totalPages(totalPages)
                 .build());
     }

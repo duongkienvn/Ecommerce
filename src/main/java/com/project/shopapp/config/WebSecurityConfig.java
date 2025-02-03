@@ -54,8 +54,11 @@ public class WebSecurityConfig {
                                 .requestMatchers(POST,
                                         orderPath, orderDetailPath).hasRole(RoleEntity.USER)
                                 .requestMatchers(PUT,
-                                        categoryPath, productPath, orderPath, orderDetailPath)
+                                        categoryPath, productPath)
                                 .hasRole(RoleEntity.ADMIN)
+                                .requestMatchers(PUT,
+                                        orderPath, orderDetailPath)
+                                .hasRole(RoleEntity.USER)
                                 .requestMatchers(DELETE,
                                         categoryPath, productPath, orderPath, orderDetailPath)
                                 .hasRole(RoleEntity.ADMIN)

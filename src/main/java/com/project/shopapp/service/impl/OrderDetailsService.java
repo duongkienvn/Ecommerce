@@ -10,6 +10,8 @@ import com.project.shopapp.repository.OrderDetailsRepository;
 import com.project.shopapp.repository.OrderRepository;
 import com.project.shopapp.repository.ProductRepository;
 import com.project.shopapp.service.IOrderDetailsService;
+import com.project.shopapp.service.IOrderService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -73,6 +75,7 @@ public class OrderDetailsService implements IOrderDetailsService {
     }
 
     @Override
+    @Transactional
     public void deleteOrderDetails(Long id) {
         OrderDetailsEntity existingOrderDetails = getOrderDetailsById(id);
         orderDetailsRepository.delete(existingOrderDetails);
@@ -80,6 +83,7 @@ public class OrderDetailsService implements IOrderDetailsService {
 
     @Override
     public List<OrderDetailsEntity> getOrderDetailsByOrderId(Long orderId) {
-        return orderDetailsRepository.findByOrderId(orderId);
+        List<OrderDetailsEntity> orderDetailsEntities = orderDetailsRepository.findByOrderId(orderId);
+        return orderDetailsEntities;
     }
 }

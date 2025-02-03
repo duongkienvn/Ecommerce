@@ -6,11 +6,14 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalException {
@@ -36,16 +39,20 @@ public class GlobalException {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        List<String> errorMessages = e.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .map(FieldError::getDefaultMessage)
-                .toList();
+        List<ObjectError> errorMessages = e.getBindingResult().getAllErrors();
+        Map<String, String> map = new HashMap<>();
+
+        errorMessages.forEach((error) -> {
+            String key = ((FieldError) error).getField();
+            String val = error.getDefaultMessage();
+            map.put(key, val);
+        });
 
         ErrorCode errorCode = ErrorCode.VALIDATION_ERROR;
-        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(errorCode.getHttpStatus(),
+        ApiErrorResponse apiErrorResponse = new ApiErrorResponse(
+                errorCode.getHttpStatus(),
                 errorCode.getMessage(),
-                errorMessages);
+                map);
 
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiErrorResponse);
     }

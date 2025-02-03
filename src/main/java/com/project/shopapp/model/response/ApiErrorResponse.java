@@ -19,7 +19,7 @@ import java.util.List;
 public class ApiErrorResponse {
     HttpStatus status;
     String message;
-    List<String> errors;
+    Object errors;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     Date timestamp;
 
@@ -29,7 +29,7 @@ public class ApiErrorResponse {
         timestamp = new Date();
     }
 
-    public ApiErrorResponse(HttpStatus status, String message, List<String> errors) {
+    public ApiErrorResponse(HttpStatus status, String message, Object errors) {
         this.status = status;
         this.message = message;
         this.errors = errors;

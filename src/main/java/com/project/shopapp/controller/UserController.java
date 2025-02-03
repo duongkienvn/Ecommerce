@@ -6,6 +6,7 @@ import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
 import com.project.shopapp.model.request.UserUpdateRequest;
+import com.project.shopapp.model.response.ApiResponse;
 import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.service.IUserService;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -36,9 +38,9 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody UserLoginDto userLoginDto) {
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto userLoginDto) {
         String token = userService.login(userLoginDto);
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Login success!", token));
     }
 
     @GetMapping("/search")

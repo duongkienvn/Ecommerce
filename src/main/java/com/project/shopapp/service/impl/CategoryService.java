@@ -9,6 +9,7 @@ import com.project.shopapp.service.ICategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,8 +36,8 @@ public class CategoryService implements ICategoryService {
     }
 
     @Override
-    public Page<CategoryEntity> getAllCategories(PageRequest pageRequest) {
-        return categoryRepository.findAll(pageRequest);
+    public Page<CategoryEntity> getAllCategories(Pageable pageable) {
+        return categoryRepository.findAll(pageable);
     }
 
     @Override

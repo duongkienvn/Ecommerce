@@ -6,6 +6,7 @@ import com.project.shopapp.model.request.CommentUpdateRequest;
 import com.project.shopapp.model.response.CommentResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface ICommentService {
     void deleteComment(Long commentId);
     void deleteComments(List<Long> commentIdList);
     CommentResponse updateComment(Long id, CommentUpdateRequest updateRequest);
-    Page<CommentResponse> getAllCommentsByProductId(Long productId, PageRequest pageRequest);
-    Page<CommentResponse> getAllCommentsByUserId(Long userId, PageRequest pageRequest);
+    Page<CommentResponse> getAllCommentsByProductId(Long productId, Pageable pageable);
+    Page<CommentResponse> getAllCommentsByUserId(Long userId, Pageable pageable);
     CommentEntity getCommentById(Long id);
 }

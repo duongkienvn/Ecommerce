@@ -18,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -92,14 +93,14 @@ public class CommentService implements ICommentService {
     }
 
     @Override
-    public Page<CommentResponse> getAllCommentsByProductId(Long productId, PageRequest pageRequest) {
-        Page<CommentEntity> commentEntities = commentRepository.getAllByProductEntityId(productId, pageRequest);
+    public Page<CommentResponse> getAllCommentsByProductId(Long productId, Pageable pageable) {
+        Page<CommentEntity> commentEntities = commentRepository.getAllByProductEntityId(productId, pageable);
         return commentEntities.map(comment -> commentConverter.convertToCommentResponse(comment));
     }
 
     @Override
-    public Page<CommentResponse> getAllCommentsByUserId(Long userId, PageRequest pageRequest) {
-        Page<CommentEntity> commentEntities = commentRepository.getAllByUserId(userId, pageRequest);
+    public Page<CommentResponse> getAllCommentsByUserId(Long userId, Pageable pageable) {
+        Page<CommentEntity> commentEntities = commentRepository.getAllByUserId(userId, pageable);
         return commentEntities.map(comment -> commentConverter.convertToCommentResponse(comment));
     }
 

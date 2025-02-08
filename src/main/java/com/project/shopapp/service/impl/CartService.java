@@ -19,6 +19,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -166,9 +167,9 @@ public class CartService implements ICartService {
     }
 
     @Override
-    public Page<ProductResponse> getAllProductsFromCart(Long userId, PageRequest pageRequest) {
+    public Page<ProductResponse> getAllProductsFromCart(Long userId, Pageable pageable) {
         CartEntity cart = getCartByUserId(userId);
-        Page<CartItemEntity> cartItemEntityPage = cartItemRepository.getByCartId(cart.getId(), pageRequest);
+        Page<CartItemEntity> cartItemEntityPage = cartItemRepository.getByCartId(cart.getId(), pageable);
         Page<ProductResponse> productResponsePage = cartItemEntityPage
                 .map(cartItem -> ProductResponse.fromProduct(cartItem.getProduct()));
 

@@ -4,6 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.request.LogoutRequest;
 import com.project.shopapp.model.request.RefreshRequest;
+import com.project.shopapp.model.response.ApiResponse;
 import com.project.shopapp.service.IOtpService;
 import com.project.shopapp.service.IUserService;
 import com.project.shopapp.utils.jwt.JwtUtil;
@@ -25,19 +26,20 @@ public class AuthenticationController {
     private final IOtpService otpService;
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logoutToken(@RequestBody LogoutRequest logoutRequest)
+    public ResponseEntity<?> logoutToken(@RequestBody LogoutRequest logoutRequest)
             throws ParseException, JOSEException {
         jwtUtil.logout(logoutRequest);
 
-        return ResponseEntity.ok("Logout Token successfully!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Logout Token successfully!"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@RequestBody RefreshRequest refreshRequest)
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshRequest refreshRequest)
             throws ParseException, JOSEException {
         String refreshedToken = jwtUtil.refreshToken(refreshRequest);
 
-        return ResponseEntity.ok(refreshedToken);
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Refresh token successfully!",
+                refreshedToken));
     }
 
     @PostMapping("/forgot-password")
@@ -45,20 +47,21 @@ public class AuthenticationController {
     public ResponseEntity<?> forgotPassword(@RequestParam String email) {
         userService.existByEmail(email);
         otpService.generateAndSendOtp(email);
-        return ResponseEntity.ok("Otp was send to your email!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Otp was send to your email!"));
     }
 
     @PostMapping("/validate-otp")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<String> validateOtp(
+    public ResponseEntity<?> validateOTP(
             @RequestParam String email,
             @RequestParam String otpCode) {
 
         if (otpService.isValidOtp(email, otpCode)) {
-            return ResponseEntity.ok("OTP is valid!");
+            return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "OTP is valid!"));
         }
 
-        return ResponseEntity.badRequest().body("OTP is expired or invalid!");
+        return ResponseEntity.badRequest().body(new ApiResponse(HttpStatus.BAD_REQUEST.value(),
+                "OTP is expired or invalid!"));
     }
 
     @PostMapping("/reset-password")
@@ -67,10 +70,11 @@ public class AuthenticationController {
             @RequestParam String email,
             @RequestBody ChangePassword changePassword) {
         if (!Objects.equals(changePassword.getPassword(), changePassword.getRepeatPassword())) {
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body("Please enter the password again!");
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(
+                    new ApiResponse(HttpStatus.EXPECTATION_FAILED.value(), "Repeat password, please!"));
         }
 
         userService.updateByEmailAndPassword(email, changePassword);
-        return ResponseEntity.ok("Reset password successfully!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Reset password successfully!"));
     }
 }

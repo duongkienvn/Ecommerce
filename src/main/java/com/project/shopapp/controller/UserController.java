@@ -12,9 +12,9 @@ import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.service.IUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping("${api.prefix}/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final IUserService userService;
 
@@ -33,38 +34,43 @@ public class UserController {
         if (!userDto.getPassword().equals(userDto.getRetypePassword())) {
             throw new AppException(ErrorCode.UNMATCHED_PASSWORD);
         }
-
-        return ResponseEntity.ok(userService.createUser(userDto));
+        log.info("User {} registered successfully.", userDto.getEmail());
+        return ResponseEntity.ok(new ApiResponse(
+                HttpStatus.CREATED.value(),
+                "Register success!",
+                userService.createUser(userDto)));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDto userLoginDto) {
+        log.info("User {} attemping to login", userLoginDto.getPhoneNumber());
         String token = userService.login(userLoginDto);
+        log.info("User {} loged in successfully!", userLoginDto.getPhoneNumber());
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Login success!", token));
     }
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<UserResponse> getUserByPhoneNumber(@RequestParam("phone_number") String phoneNumber) {
-        return ResponseEntity.ok(userService.getUserByPhoneNumber(phoneNumber));
+    public ResponseEntity<?> getUserByPhoneNumber(@RequestParam("phone_number") String phoneNumber) {
+        return ResponseEntity.ok(new ApiResponse(
+                HttpStatus.OK.value(),
+                "Get User successfully!",
+                userService.getUserByPhoneNumber(phoneNumber)));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PageResponse> getAllUsers(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "limit", defaultValue = "5") int limit
-    ) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt"));
-        Page<UserResponse> userResponsePage = userService.findAllUsers(pageRequest);
-
+    public ResponseEntity<?> getAllUsers(Pageable pageable) {
+        Page<UserResponse> userResponsePage = userService.findAllUsers(pageable);
         List<UserResponse> userResponseList = userResponsePage.getContent();
         int totalPages = userResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(PageResponse.builder()
-                .data(userResponseList)
-                .totalPages(totalPages)
-                .build());
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(),
+                "Get all users successfully!",
+                PageResponse.builder()
+                        .data(userResponseList)
+                        .totalPages(totalPages)
+                        .build()));
     }
 
     @PostMapping("/{id}/change-password")
@@ -74,25 +80,32 @@ public class UserController {
             @RequestParam String currentPassword,
             @RequestBody ChangePassword changePassword) {
         userService.changePassword(userId, currentPassword, changePassword);
-        return ResponseEntity.ok("Password is updated!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(),
+                "Password is updated!"));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
                                         @PathVariable("id") Long userId) {
-        return ResponseEntity.ok(userService.updateUser(userId, userUpdateRequest));
+        return ResponseEntity.ok(new ApiResponse(
+                HttpStatus.OK.value(),
+                "Update success!",
+                userService.updateUser(userId, userUpdateRequest)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok("Delete user successfully!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Delete user successfully!"));
     }
 
     @GetMapping("/my-info")
     public ResponseEntity<?> getMyInfo() {
-        return ResponseEntity.ok(userService.getMyInfo());
+        return ResponseEntity.ok(new ApiResponse(
+                HttpStatus.OK.value(),
+                "Get success!",
+                userService.getMyInfo()));
     }
 }

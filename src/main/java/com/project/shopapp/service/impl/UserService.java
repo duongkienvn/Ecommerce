@@ -20,6 +20,7 @@ import com.project.shopapp.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -120,9 +121,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Page<UserResponse> findAllUsers(PageRequest pageRequest) {
-        Page<UserEntity> userEntities = userRepostiory.findAll(pageRequest);
-
+    public Page<UserResponse> findAllUsers(Pageable pageable) {
+        Page<UserEntity> userEntities = userRepostiory.findAll(pageable);
         return userEntities.map(user -> userConverter.convertToUserResponse(user));
     }
 

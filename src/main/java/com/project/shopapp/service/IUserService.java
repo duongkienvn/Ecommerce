@@ -8,6 +8,7 @@ import com.project.shopapp.model.request.UserUpdateRequest;
 import com.project.shopapp.model.response.UserResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public interface IUserService {
     UserEntity getById(Long id);
@@ -16,7 +17,7 @@ public interface IUserService {
     UserResponse getUserByPhoneNumber(String phonenumber);
     void deleteUser(Long userId);
     UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest);
-    Page<UserResponse> findAllUsers(PageRequest pageRequest);
+    Page<UserResponse> findAllUsers(Pageable pageable);
     void existByEmail(String email);
     void updateByEmailAndPassword(String email, ChangePassword password);
     void changePassword(Long userId, String currentPassword, ChangePassword changePassword);

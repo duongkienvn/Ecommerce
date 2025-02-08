@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -99,8 +100,8 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public Page<OrderResponse> getAllOrders(PageRequest pageRequest) {
-        Page<OrderEntity> orderEntities = orderRepository.findAll(pageRequest);
+    public Page<OrderResponse> getAllOrders(Pageable pageable) {
+        Page<OrderEntity> orderEntities = orderRepository.findAll(pageable);
         return orderEntities.map(order -> orderConverter.convertToOrderResponse(order));
     }
 }

@@ -30,7 +30,7 @@ public class UserDto {
     String retypePassword;
 
     @JsonProperty("date_of_birth")
-    LocalDate dateOfBirth;
+    Date dateOfBirth;
 
     @JsonProperty("facebook_account_id")
     int facebookAccountId;

@@ -20,10 +20,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductImageRepository productImageRepository;
+    private final BaseRedisService baseRedisService;
+    private static final String PRODUCT_CACHE_PREFIX = "product:";
 
     @Override
     public ProductResponse createProduct(ProductDto productDto) {
@@ -46,11 +50,13 @@ public class ProductService implements IProductService {
                 .build();
         productRepository.save(newProduct);
 
-        return ProductResponse.fromProduct(newProduct);
+        ProductResponse productResponse = ProductResponse.fromProduct(newProduct);
+
+        return productResponse;
     }
 
     @Override
-    public ProductEntity getProductById(Long id) {
+    public ProductEntity getProductEntityById(Long id) {
         ProductEntity existingProduct = productRepository
                 .findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -58,8 +64,32 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    public ProductResponse getProductById(Long id) {
+        String cachedKey = PRODUCT_CACHE_PREFIX + id;
+        ProductResponse cachedProduct = (ProductResponse) baseRedisService.get(cachedKey);
+
+        if (Objects.nonNull(cachedProduct)) {
+            return cachedProduct;
+        }
+
+        ProductEntity existingProduct = productRepository
+                .findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+        ProductResponse productResponse = ProductResponse.fromProduct(existingProduct);
+
+        setProductToRedis(cachedKey, productResponse);
+
+        return productResponse;
+    }
+
+    private void setProductToRedis(String cachedKey, Object object) {
+        baseRedisService.setTimeToLive(cachedKey, 1);
+        baseRedisService.set(cachedKey, object);
+    }
+
+    @Override
     public ProductResponse updateProduct(Long id, ProductDto productDto) {
-        ProductEntity existingProduct = getProductById(id);
+        ProductEntity existingProduct = getProductEntityById(id);
         CategoryEntity existingCategory = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_FOUND));
 
@@ -70,25 +100,43 @@ public class ProductService implements IProductService {
         existingProduct.setCategory(existingCategory);
 
         productRepository.save(existingProduct);
-        return ProductResponse.fromProduct(existingProduct);
+
+        ProductResponse productResponse = ProductResponse.fromProduct(existingProduct);
+
+        String cachedKey = PRODUCT_CACHE_PREFIX + id;
+        baseRedisService.delete(cachedKey);
+        setProductToRedis(cachedKey, productResponse);
+
+        return productResponse;
     }
 
     @Override
-    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
-        return productRepository
-                .findAll(pageRequest)
+    public Page<ProductResponse> getAllProducts(Pageable pageable) {
+        String cachedKey = PRODUCT_CACHE_PREFIX + "page:" + pageable.getPageNumber()
+                + ":size:" + pageable.getPageSize();
+
+        List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
+        if (Objects.nonNull(cachedProducts)) {
+            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+        }
+
+        Page<ProductResponse> productResponsePage = productRepository
+                .findAll(pageable)
                 .map(ProductResponse::fromProduct);
+
+        setProductToRedis(cachedKey, productResponsePage.getContent());
+        return productResponsePage;
     }
 
     @Override
     public void deleteProduct(Long id) {
-        ProductEntity productEntity = getProductById(id);
+        ProductEntity productEntity = getProductEntityById(id);
         productRepository.delete(productEntity);
     }
 
     @Override
     public ProductImageResponse createProductImage(ProductImageDto productImageDto) {
-        ProductEntity existingProduct = getProductById(productImageDto.getProductId());
+        ProductEntity existingProduct = getProductEntityById(productImageDto.getProductId());
         List<ProductImageEntity> productImageEntities
                 = productImageRepository.getProductImageEntitiesByProductEntityId(productImageDto.getProductId());
 
@@ -109,15 +157,26 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductResponse> findProduct(Map<String, Object> productMap, PageRequest pageRequest) {
+    public Page<ProductResponse> findProduct(Map<String, Object> productMap, Pageable pageable) {
+        String cachedKey = PRODUCT_CACHE_PREFIX + "find:" + productMap.hashCode()
+                + ":page:" + pageable.getPageNumber()
+                + ":size:" + pageable.getPageSize();
+
+        List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
+        if (Objects.nonNull(cachedProducts)) {
+            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+        }
+
         ProductRequest productRequest = ProductRequestMapper.toProductRequest(productMap);
-        Page<ProductEntity> productEntities = productRepository.findProduct(productRequest, pageRequest);
+        Page<ProductEntity> productEntities = productRepository.findProduct(productRequest, pageable);
 
         List<ProductResponse> productResponses = productEntities
                 .stream()
                 .map(ProductResponse::fromProduct)
                 .toList();
 
-        return new PageImpl<>(productResponses, pageRequest, productEntities.getTotalElements());
+        setProductToRedis(cachedKey, productResponses);
+
+        return new PageImpl<>(productResponses, pageable, productEntities.getTotalElements());
     }
 }

@@ -4,6 +4,7 @@ import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.entity.ProductImageEntity;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
+import com.project.shopapp.model.response.ApiResponse;
 import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductResponse;
@@ -12,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,56 +38,55 @@ public class ProductController {
     private final IProductService productService;
 
     @GetMapping("/search")
-    public ResponseEntity<?> findProduct(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "limit", defaultValue = "10") int limit,
-            @RequestParam Map<String, Object> productMap) {
+    public ResponseEntity<?> findProduct(Pageable pageable, @RequestParam Map<String, Object> productMap) {
 
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("name"));
-        Page<ProductResponse> productResponsePage = productService.findProduct(productMap, pageRequest);
+        Page<ProductResponse> productResponsePage = productService.findProduct(productMap, pageable);
         List<ProductResponse> productResponseList = productResponsePage.getContent();
         int totalPages = productResponsePage.getTotalPages();
 
-        return ResponseEntity.ok(PageResponse.builder()
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Find product successfully!",
+                PageResponse.builder()
                 .data(productResponseList)
                 .totalPages(totalPages)
-                .build());
+                .build()));
     }
 
     @PostMapping
     public ResponseEntity<?> createProduct(@Valid @RequestBody ProductDto productDto) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(productService.createProduct(productDto));
+                .body(new ApiResponse(HttpStatus.CREATED.value(), "Create product successfully!",
+                        productService.createProduct(productDto)));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getProductById(@PathVariable Long id) {
-        ProductEntity existingProduct = productService.getProductById(id);
-        return ResponseEntity.ok(ProductResponse.fromProduct(existingProduct));
+        ProductResponse productResponse = productService.getProductById(id);
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get product successfully!", productResponse));
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllProducts(@RequestParam("page") int page, @RequestParam("limit") int limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createdAt").descending());
-        Page<ProductResponse> productPage = productService.getAllProducts(pageRequest);
+    public ResponseEntity<?> getAllProducts(Pageable pageable) {
+        Page<ProductResponse> productPage = productService.getAllProducts(pageable);
         List<ProductResponse> productResponses = productPage.getContent();
         int totalPages = productPage.getTotalPages();
 
-        return ResponseEntity.ok(PageResponse.builder()
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all products successfully!",
+                PageResponse.builder()
                 .data(productResponses)
                 .totalPages(totalPages)
-                .build());
+                .build()));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDto productDto) {
-        return ResponseEntity.ok(productService.updateProduct(id, productDto));
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Update product successfully!",
+                productService.updateProduct(id, productDto)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return ResponseEntity.ok("Deleting product successfully!");
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Deleting product successfully!"));
     }
 
     private boolean isImageFile(MultipartFile file) {
@@ -117,7 +118,7 @@ public class ProductController {
             @PathVariable("id") Long productId,
             @RequestBody List<MultipartFile> files) throws IOException {
 
-        ProductEntity existingProduct = productService.getProductById(productId);
+        ProductEntity existingProduct = productService.getProductEntityById(productId);
         files = files == null ? new ArrayList<>() : files;
         if (files.size() > ProductImageEntity.MAXIMUM_IMAGES_PER_PRODUCT) {
             return ResponseEntity.badRequest().body("You can only upload maximum 5 images!");
@@ -148,6 +149,6 @@ public class ProductController {
             ProductImageResponse productImageResponse = productService.createProductImage(productImageDto);
             productImageResponses.add(productImageResponse);
         }
-        return ResponseEntity.ok(productImageResponses);
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Upload images successfully!", productImageResponses));
     }
 }

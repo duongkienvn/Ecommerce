@@ -2,15 +2,13 @@ package com.project.shopapp.model.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.project.shopapp.entity.ProductEntity;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class ProductResponse extends BaseResponse {
     String name;

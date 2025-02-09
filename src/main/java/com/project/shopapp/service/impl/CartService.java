@@ -38,7 +38,7 @@ public class CartService implements ICartService {
 
     @Override
     public CartResponse addProductToCart(Long userId, Long productId, long quantity) {
-        ProductEntity existingProduct = productService.getProductById(productId);
+        ProductEntity existingProduct = productService.getProductEntityById(productId);
         UserEntity existingUser = userService.getById(userId);
 
         CartItemEntity cartItem = CartItemEntity.builder()
@@ -102,7 +102,7 @@ public class CartService implements ICartService {
 
     @Override
     public CartResponse updateProductInCart(Long userId, Long productId, long quantity) {
-        ProductEntity existingProduct = productService.getProductById(productId);
+        ProductEntity existingProduct = productService.getProductEntityById(productId);
         UserEntity existingUser = userService.getById(userId);
 
         CartEntity cart = getCartByUserId(userId);

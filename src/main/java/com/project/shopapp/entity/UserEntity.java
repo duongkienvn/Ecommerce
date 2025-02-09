@@ -37,7 +37,7 @@ public class UserEntity extends BaseEntity {
     int active;
 
     @Column(name = "date_of_birth")
-    LocalDate dateOfBirth;
+    Date dateOfBirth;
 
     @Column(name = "facebook_account_id")
     int facebookAccountId;

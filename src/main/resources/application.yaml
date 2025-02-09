@@ -23,11 +23,14 @@ spring:
         client:
           registration:
             github:
-              client-id: Ov23li2eZwOx10LGCSxF
-              client-secret: e1cd2cc0bb34b5cb976ad5ee353fe340965fb8ad
+              client-id: ${GITHUB_CLIENT_ID}
+              client-secret: ${GITHUB_CLIENT_SECRET}
             google:
-              client-id: 883269268303-qk6qn8gfafdbuj369u7usosj3h7a3n65.apps.googleusercontent.com
-              client-secret: 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
+              client-id: ${GOOGLE_CLIENT_ID}
+              client-secret: ${GOOGLE_CLIENT_SECRET}
+  redis:
+    host: localhost
+    port: 6379
   mail:
     host: smtp.gmail.com
     port: 587

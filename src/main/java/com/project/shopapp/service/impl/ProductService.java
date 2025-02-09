@@ -10,6 +10,7 @@ import com.project.shopapp.exception.InvalidParamException;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
 import com.project.shopapp.model.request.ProductRequest;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.repository.CategoryRepository;
@@ -117,7 +118,8 @@ public class ProductService implements IProductService {
 
         List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
         if (Objects.nonNull(cachedProducts)) {
-            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+            long totalElements = productRepository.count();
+            return new PageImpl<>(cachedProducts, pageable, totalElements);
         }
 
         Page<ProductResponse> productResponsePage = productRepository
@@ -132,6 +134,11 @@ public class ProductService implements IProductService {
     public void deleteProduct(Long id) {
         ProductEntity productEntity = getProductEntityById(id);
         productRepository.delete(productEntity);
+
+        String cacheKey = PRODUCT_CACHE_PREFIX + id;
+        baseRedisService.delete(cacheKey);
+
+        String searchCachedKey = PRODUCT_CACHE_PREFIX + "find:*";
     }
 
     @Override
@@ -162,9 +169,9 @@ public class ProductService implements IProductService {
                 + ":page:" + pageable.getPageNumber()
                 + ":size:" + pageable.getPageSize();
 
-        List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
+        PageResponse<List<ProductResponse>> cachedProducts = (PageResponse<List<ProductResponse>>) baseRedisService.get(cachedKey);
         if (Objects.nonNull(cachedProducts)) {
-            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+            return new PageImpl<>(cachedProducts.getData(), pageable, cachedProducts.getTotalPages());
         }
 
         ProductRequest productRequest = ProductRequestMapper.toProductRequest(productMap);
@@ -175,7 +182,12 @@ public class ProductService implements IProductService {
                 .map(ProductResponse::fromProduct)
                 .toList();
 
-        setProductToRedis(cachedKey, productResponses);
+        PageResponse pageResponse = PageResponse.builder()
+                .data(productResponses)
+                .totalPages(productEntities.getTotalPages())
+                .build();
+
+        setProductToRedis(cachedKey, pageResponse);
 
         return new PageImpl<>(productResponses, pageable, productEntities.getTotalElements());
     }

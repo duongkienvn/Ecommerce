@@ -20,24 +20,19 @@ import java.util.Date;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BaseEntity {
     @Column(name = "created_at")
-    Date createdAt;
-//    LocalDateTime createdAt;
+    LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    Date updatedAt;
-//    LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = new Date();
-        updatedAt = new Date();
-//        createdAt = LocalDateTime.now();
-//        updatedAt = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = new Date();
-//        updatedAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 }

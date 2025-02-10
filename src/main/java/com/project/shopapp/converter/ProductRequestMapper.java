@@ -29,7 +29,7 @@ public class ProductRequestMapper {
 
         productMap.forEach((key, value) -> {
             try {
-                if (!key.equals("page") && !key.equals("limit")) {
+                if (!key.equals("page") && !key.equals("size")) {
                     Field field = ProductRequest.class.getDeclaredField(key);
                     field.setAccessible(true);
 

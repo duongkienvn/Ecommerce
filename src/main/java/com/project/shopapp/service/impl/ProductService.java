@@ -1,5 +1,7 @@
 package com.project.shopapp.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.project.shopapp.converter.ProductRequestMapper;
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
@@ -10,12 +12,14 @@ import com.project.shopapp.exception.InvalidParamException;
 import com.project.shopapp.model.dto.ProductDto;
 import com.project.shopapp.model.dto.ProductImageDto;
 import com.project.shopapp.model.request.ProductRequest;
+import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.repository.ProductImageRepository;
 import com.project.shopapp.repository.ProductRepository;
 import com.project.shopapp.service.IProductService;
+import com.project.shopapp.utils.redis.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -26,6 +30,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +71,10 @@ public class ProductService implements IProductService {
     @Override
     public ProductResponse getProductById(Long id) {
         String cachedKey = PRODUCT_CACHE_PREFIX + id;
-        ProductResponse cachedProduct = (ProductResponse) baseRedisService.get(cachedKey);
+        Object cachedData = baseRedisService.get(cachedKey);
 
-        if (Objects.nonNull(cachedProduct)) {
+        if (Objects.nonNull(cachedData)) {
+            ProductResponse cachedProduct = RedisUtil.convertValue(cachedData, ProductResponse.class);
             return cachedProduct;
         }
 
@@ -83,8 +89,8 @@ public class ProductService implements IProductService {
     }
 
     private void setProductToRedis(String cachedKey, Object object) {
-        baseRedisService.setTimeToLive(cachedKey, 1);
         baseRedisService.set(cachedKey, object);
+        baseRedisService.setTimeToLive(cachedKey, 1);
     }
 
     @Override
@@ -113,11 +119,12 @@ public class ProductService implements IProductService {
     @Override
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
         String cachedKey = PRODUCT_CACHE_PREFIX + "page:" + pageable.getPageNumber()
-                + ":size:" + pageable.getPageSize();
+                + ":size:" + pageable.getPageSize() + ":sort:" + pageable.getSort();
 
         List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
         if (Objects.nonNull(cachedProducts)) {
-            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+            long totalElements = productRepository.count();
+            return new PageImpl<>(cachedProducts, pageable, totalElements);
         }
 
         Page<ProductResponse> productResponsePage = productRepository
@@ -132,6 +139,20 @@ public class ProductService implements IProductService {
     public void deleteProduct(Long id) {
         ProductEntity productEntity = getProductEntityById(id);
         productRepository.delete(productEntity);
+
+        String cacheKey = PRODUCT_CACHE_PREFIX + id;
+        baseRedisService.delete(cacheKey);
+
+        String getCachedKey = PRODUCT_CACHE_PREFIX + "page:*";
+        clearAllProductsCache(getCachedKey);
+
+        String searchCachedKey = PRODUCT_CACHE_PREFIX + "find:*";
+        clearAllProductsCache(searchCachedKey);
+    }
+
+    private void clearAllProductsCache(String pattern) {
+        Set<String> keys = baseRedisService.getKeys(pattern);
+        keys.forEach(key -> baseRedisService.delete(key));
     }
 
     @Override
@@ -160,11 +181,14 @@ public class ProductService implements IProductService {
     public Page<ProductResponse> findProduct(Map<String, Object> productMap, Pageable pageable) {
         String cachedKey = PRODUCT_CACHE_PREFIX + "find:" + productMap.hashCode()
                 + ":page:" + pageable.getPageNumber()
-                + ":size:" + pageable.getPageSize();
+                + ":size:" + pageable.getPageSize()
+                + ":sort:" + pageable.getSort();
 
-        List<ProductResponse> cachedProducts = (List<ProductResponse>) baseRedisService.get(cachedKey);
-        if (Objects.nonNull(cachedProducts)) {
-            return new PageImpl<>(cachedProducts, pageable, cachedProducts.size());
+        Object cachedData = baseRedisService.get(cachedKey);
+        if (Objects.nonNull(cachedData)) {
+            PageResponse<List<ProductResponse>> cachedProducts = RedisUtil.convertValue(cachedData, PageResponse.class);
+            return new PageImpl<>(cachedProducts.getData(), pageable,
+                    pageable.getPageSize() * cachedProducts.getTotalPages());
         }
 
         ProductRequest productRequest = ProductRequestMapper.toProductRequest(productMap);
@@ -175,7 +199,12 @@ public class ProductService implements IProductService {
                 .map(ProductResponse::fromProduct)
                 .toList();
 
-        setProductToRedis(cachedKey, productResponses);
+        PageResponse pageResponse = PageResponse.builder()
+                .data(productResponses)
+                .totalPages(productEntities.getTotalPages())
+                .build();
+
+        setProductToRedis(cachedKey, pageResponse);
 
         return new PageImpl<>(productResponses, pageable, productEntities.getTotalElements());
     }

@@ -36,14 +36,16 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public <K, V> RedisTemplate<K, V> redisTemplate(ObjectMapper objectMapper) {
+        RedisTemplate<K, V> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
+
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+        redisTemplate.setValueSerializer(serializer);
+        redisTemplate.setHashValueSerializer(serializer);
 
         return redisTemplate;
     }
@@ -51,15 +53,8 @@ public class RedisConfig {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule simpleModule = new SimpleModule();
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-
-        simpleModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(formatter));
-        simpleModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(formatter));
-
+        objectMapper.deactivateDefaultTyping();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.registerModule(simpleModule);
 
         return objectMapper;
     }

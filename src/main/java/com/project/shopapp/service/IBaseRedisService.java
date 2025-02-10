@@ -17,4 +17,5 @@ public interface IBaseRedisService<K, F, V> {
     void delete(K key);
     void delete(K key, F field);
     void delete(K key, List<F> fields);
+    Set<K> getKeys(K pattern);
 }

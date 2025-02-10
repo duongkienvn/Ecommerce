@@ -85,4 +85,9 @@ public class BaseRedisService<K, F, V> implements IBaseRedisService<K, F, V> {
     public void delete(K key, List<F> fields) {
         hashOperations.delete(key, fields.toArray());
     }
+
+    @Override
+    public Set<K> getKeys(K pattern) {
+        return redisTemplate.keys(pattern);
+    }
 }

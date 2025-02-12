@@ -223,7 +223,7 @@ public class OrderDetailsIntegrationTest {
     @Test
     @Transactional
     void testDeleteOrderDetails_Success() throws Exception {
-        mockMvc.perform(delete(baseUrl + "/order_details/18").accept(MediaType.APPLICATION_JSON_VALUE)
+        mockMvc.perform(delete(baseUrl + "/order_details/14").accept(MediaType.APPLICATION_JSON_VALUE)
                 .header(HttpHeaders.AUTHORIZATION, this.adminToken))
                 .andExpect(jsonPath("code").value(200))
                 .andExpect(jsonPath("message").value("Delete order details successfully!"));

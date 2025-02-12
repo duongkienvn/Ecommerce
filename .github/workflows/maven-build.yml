@@ -17,6 +17,7 @@ jobs:
           MYSQL_DATABASE: shoppapp
         ports:
           - 3307:3306
+        options: --health-cmd="mysqladmin ping -h localhost -u root -pkien2005" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Check out the repository
@@ -27,6 +28,16 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+
+      - name: Wait for MySQL to be ready
+        run: |
+          while ! mysqladmin ping -h localhost -u root -pkien2005 --silent; do
+            sleep 1
+          done
+
       - name: Build and test with maven
         run: mvn --batch-mode package
-
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://192.168.13.1:3307/shoppapp
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: kien2005

@@ -29,12 +29,6 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Wait for MySQL to be ready
-        run: |
-          while ! mysqladmin ping -h localhost -u root -pkien2005 --silent; do
-            sleep 1
-          done
-
       - name: Build and test with maven
         run: mvn --batch-mode package
         env:

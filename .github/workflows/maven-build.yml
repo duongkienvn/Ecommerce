@@ -9,6 +9,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: kien2005
+          MYSQL_DATABASE: shoppapp
+        ports:
+          - 3307:3306
+
     steps:
       - name: Check out the repository
         uses: actions/checkout@v4

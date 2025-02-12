@@ -1,6 +1,6 @@
 server:
   port:
-    8080
+    8081
 spring:
   datasource:
     url: ${DBMS_CONNECTION:jdbc:mysql://192.168.13.1:3306/shopapp}
@@ -57,3 +57,20 @@ api:
 jwt:
   expiration: 2592000 #30 days = 30 * 24 * 60 * 60
   secretKey: iR/y3oZJM5IjK1n929d90COUtz9c52eThZzlcqVRhqQ=
+
+payment:
+  vnPay:
+#    url: ${PAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
+#    tmnCode: ${TMN_CODE:PA213E9L}
+#    secretKey: ${SECRET_KEY:EQB0S4UKU4KDN1QWZA940APF2BTZ7FTV}
+#    returnUrl: ${RETURN_URL:${api.prefix}/payment/vn-pay-callback}
+#    version: ${VERSION:2.1.0}
+#    command: ${COMMAND:pay}
+#    orderType: ${ORDER_TYPE:other}
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: PA213E9L
+    secretKey: EQB0S4UKU4KDN1QWZA940APF2BTZ7FTV
+    returnUrl: http://localhost:8081${api.prefix}/payment/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other

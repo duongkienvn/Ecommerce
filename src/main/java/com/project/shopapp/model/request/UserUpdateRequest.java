@@ -7,6 +7,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Date;
+
 @Data
 @Builder
 @AllArgsConstructor
@@ -23,7 +25,7 @@ public class UserUpdateRequest {
     String address;
 
     @JsonProperty("date_of_birth")
-    LocalDate dateOfBirth;
+    Date dateOfBirth;
 
     @JsonProperty("facebook_account_id")
     int facebookAccountId;

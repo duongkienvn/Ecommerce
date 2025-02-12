@@ -10,15 +10,17 @@ import com.project.shopapp.model.response.ProductImageResponse;
 import com.project.shopapp.model.response.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
 
 public interface IProductService {
     ProductResponse createProduct(ProductDto productDto);
-    ProductEntity getProductById(Long id);
+    ProductResponse getProductById(Long id);
     ProductResponse updateProduct(Long id, ProductDto productDto);
-    Page<ProductResponse> getAllProducts(PageRequest pageRequest);
+    ProductEntity getProductEntityById(Long id);
+    Page<ProductResponse> getAllProducts(Pageable pageable);
     void deleteProduct(Long id);
     ProductImageResponse createProductImage(ProductImageDto productImageDto);
-    Page<ProductResponse> findProduct(Map<String, Object> productMap, PageRequest pageRequest);
+    Page<ProductResponse> findProduct(Map<String, Object> productMap, Pageable pageable);
 }

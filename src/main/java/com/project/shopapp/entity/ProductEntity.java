@@ -37,4 +37,9 @@ public class ProductEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "product", orphanRemoval = true, cascade = CascadeType.REMOVE)
     List<OrderDetailsEntity> orderDetailsEntityList;
+
+    @OneToMany(mappedBy = "product",
+            orphanRemoval = true,
+            cascade = {CascadeType.REMOVE, CascadeType.PERSIST, CascadeType.MERGE})
+    List<CartItemEntity> cartItemEntities;
 }

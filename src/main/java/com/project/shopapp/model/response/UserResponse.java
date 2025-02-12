@@ -34,7 +34,7 @@ public class UserResponse {
     int active;
 
     @JsonProperty("date_of_birth")
-    LocalDate dateOfBirth;
+    Date dateOfBirth;
 
     String role;
     String email;

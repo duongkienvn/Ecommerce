@@ -1,19 +1,24 @@
 package com.project.shopapp.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.shopapp.entity.OrderDetailsEntity;
 import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.entity.ProductEntity;
 import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDetailsDto;
+import com.project.shopapp.model.response.OrderDetailsResponse;
+import com.project.shopapp.model.response.OrderResponse;
 import com.project.shopapp.repository.OrderDetailsRepository;
 import com.project.shopapp.repository.OrderRepository;
 import com.project.shopapp.repository.ProductRepository;
+import com.project.shopapp.service.IBaseRedisService;
 import com.project.shopapp.service.IOrderDetailsService;
 import com.project.shopapp.service.IOrderService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,6 +30,10 @@ public class OrderDetailsService implements IOrderDetailsService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final ModelMapper mapper;
+    private final ObjectMapper objectMapper;
+    private final IBaseRedisService baseRedisService;
+    private static final String ORDER_DETAILS_CACHE_PREFIX = "orderDetails:";
+
 
     @Override
     public OrderDetailsEntity createOrderDetails(OrderDetailsDto orderDetailsDto) {
@@ -70,8 +79,20 @@ public class OrderDetailsService implements IOrderDetailsService {
 
     @Override
     public OrderDetailsEntity getOrderDetailsById(Long id) {
-        return orderDetailsRepository.findById(id)
+//        String cacheKey = ORDER_DETAILS_CACHE_PREFIX + id;
+//        OrderDetailsResponse cachedOrderDetails = (OrderDetailsResponse) baseRedisService.get(cacheKey);
+//
+//        if (cachedOrderDetails != null) {
+//            return cachedOrderDetails;
+//        }
+
+        OrderDetailsEntity orderDetails = orderDetailsRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_DETAILS_NOT_FOUND));
+
+//        baseRedisService.setTimeToLive(cacheKey, 1);
+//        baseRedisService.set(cacheKey, orderDetails);
+
+        return orderDetails;
     }
 
     @Override

@@ -1,6 +1,6 @@
 name: Java CI with Maven
 env:
-    SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3307/shoppapp
+    SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3308/shoppapp
     SPRING_DATASOURCE_USERNAME: root
     SPRING_DATASOURCE_PASSWORD: kien2005
 on:
@@ -19,7 +19,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: kien2005
           MYSQL_DATABASE: shoppapp
         ports:
-          - 3307:3306
+          - 3308:3306
         options:
           --health-cmd="mysqladmin ping -h mysql -u root -pkien2005" 
           --health-interval=10s 

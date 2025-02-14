@@ -1,6 +1,6 @@
 name: Java CI with Maven
 env:
-    SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3308/shoppapp
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3308/shoppapp
     SPRING_DATASOURCE_USERNAME: root
     SPRING_DATASOURCE_PASSWORD: kien2005
 on:

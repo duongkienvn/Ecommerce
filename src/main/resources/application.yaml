@@ -3,7 +3,7 @@ server:
     8081
 spring:
   datasource:
-    url: ${DBMS_CONNECTION:jdbc:mysql://mysql:3308/shopapp}
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3308/shopapp}
     driver-class-name: "com.mysql.cj.jdbc.Driver"
     username: ${DBMS_USERNAME:root}
     password: ${DBMS_PASSWORD:kien2005}

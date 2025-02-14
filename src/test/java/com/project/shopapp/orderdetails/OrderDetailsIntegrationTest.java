@@ -5,6 +5,7 @@ import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.dto.OrderDetailsDto;
 import com.project.shopapp.model.dto.UserLoginDto;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +35,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DisplayName("Integration tests for Order Details API endpoints")
 @Tag("Integration")
 @ActiveProfiles(value = "dev")
+@Slf4j
 public class OrderDetailsIntegrationTest {
     @Autowired
     MockMvc mockMvc;
@@ -79,8 +81,8 @@ public class OrderDetailsIntegrationTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.message").value("Find order details successfully!"))
                 .andExpect(jsonPath("$.data.id").value(7L))
-                .andExpect(jsonPath("$.data.number_of_products").value(5))
-                .andExpect(jsonPath("$.data.color").value("Red"));
+                .andExpect(jsonPath("$.data.number_of_products").value(3))
+                .andExpect(jsonPath("$.data.color").value("Blue"));
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.project.shopapp.controller;
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.model.dto.CategoryDto;
 import com.project.shopapp.model.response.ApiResponse;
+import com.project.shopapp.model.response.CategoryResponse;
 import com.project.shopapp.model.response.PageResponse;
 import com.project.shopapp.service.ICategoryService;
 import jakarta.validation.Valid;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -26,7 +28,11 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         categoryService.createCategory(categoryDto);
-        return ResponseEntity.ok(new ApiResponse(HttpStatus.CREATED.value(), "Insert category successfully!"));
+        return ResponseEntity.ok(
+                new ApiResponse(
+                        HttpStatus.CREATED.value(),
+                        "Insert category successfully!",
+                        new CategoryResponse(categoryDto.getName())));
     }
 
     @PutMapping("/{id}")
@@ -41,11 +47,12 @@ public class CategoryController {
         Page<CategoryEntity> categoryPage = categoryService.getAllCategories(pageable);
         int totalPage = categoryPage.getTotalPages();
         List<CategoryEntity> categoryEntities = categoryPage.getContent();
-
+        List<CategoryResponse> categoryResponses = new ArrayList<>();
+        categoryEntities.forEach(category -> categoryResponses.add(new CategoryResponse(category.getName())));
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all categories successfully!",
                 PageResponse.builder()
                 .totalPages(totalPage)
-                .data(categoryEntities).build()));
+                .data(categoryResponses).build()));
     }
 
     @DeleteMapping("/{id}")

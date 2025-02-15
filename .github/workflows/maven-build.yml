@@ -1,8 +1,8 @@
 name: Java CI with Maven
 env:
-    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3308/shoppapp
-    SPRING_DATASOURCE_USERNAME: root
-    SPRING_DATASOURCE_PASSWORD: kien2005
+    SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+    SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+    SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 on:
   pull_request:
     branches:
@@ -16,12 +16,12 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: kien2005
-          MYSQL_DATABASE: shoppapp
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         ports:
           - 3308:3306
         options:
-          --health-cmd="mysqladmin ping -h mysql -u root -pkien2005" 
+          --health-cmd="mysqladmin ping -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}" 
           --health-interval=10s 
           --health-timeout=5s 
           --health-retries=3

@@ -52,7 +52,7 @@ public class OrderController {
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Deleting Order successfully!"));
     }
 
-    @GetMapping("/user/{user_id}")
+    @GetMapping("/users/{user_id}")
     public ResponseEntity<?> getOrdersByUserId(@PathVariable("user_id") Long userId) {
         return ResponseEntity.ok(
                 new ApiResponse(HttpStatus.OK.value(), "Get order successfully!",

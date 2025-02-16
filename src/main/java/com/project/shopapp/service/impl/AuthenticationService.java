@@ -1,4 +1,4 @@
-package com.project.shopapp.service;
+package com.project.shopapp.service.impl;
 
 import com.nimbusds.jose.JOSEException;
 import com.project.shopapp.exception.AppException;

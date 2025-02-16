@@ -22,4 +22,5 @@ public interface IUserService {
     void updateByEmailAndPassword(String email, ChangePassword password);
     void changePassword(Long userId, String currentPassword, ChangePassword changePassword);
     UserResponse getMyInfo();
+    UserResponse getUserById(Long userId);
 }

@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,6 @@ public class UserService implements IUserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final AuthenticationFacade authenticationFacade;
-    private final CartRepository cartRepository;
 
     @Override
     public UserResponse createUser(UserDto userDto) {
@@ -186,13 +186,25 @@ public class UserService implements IUserService {
     @Override
     public UserResponse updateUser(Long id, UserUpdateRequest userUpdateRequest) {
         UserEntity exisitingUser = getById(id);
-        exisitingUser.setFullName(userUpdateRequest.getFullName());
-        exisitingUser.setAddress(userUpdateRequest.getAddress());
-        exisitingUser.setEmail(userUpdateRequest.getEmail());
-        exisitingUser.setDateOfBirth(userUpdateRequest.getDateOfBirth());
-        exisitingUser.setFacebookAccountId(userUpdateRequest.getFacebookAccountId());
-        exisitingUser.setGoogleAccountId(userUpdateRequest.getGoogleAccountId());
-        exisitingUser.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication.getAuthorities()
+                .stream()
+                .noneMatch(granted -> granted.getAuthority().equals("ROLE_ADMIN"))) {
+            exisitingUser.setFullName(userUpdateRequest.getFullName());
+            exisitingUser.setAddress(userUpdateRequest.getAddress());
+            exisitingUser.setEmail(userUpdateRequest.getEmail());
+            exisitingUser.setDateOfBirth(userUpdateRequest.getDateOfBirth());
+            exisitingUser.setFacebookAccountId(userUpdateRequest.getFacebookAccountId());
+            exisitingUser.setGoogleAccountId(userUpdateRequest.getGoogleAccountId());
+            exisitingUser.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+        } else {
+            exisitingUser.setFullName(userUpdateRequest.getFullName());
+            RoleEntity role = roleRepository.findById(userUpdateRequest.getRoleId())
+                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+            exisitingUser.setRoleEntity(role);
+            exisitingUser.setActive(userUpdateRequest.getActive());
+        }
 
         userRepostiory.save(exisitingUser);
         return userConverter.convertToUserResponse(exisitingUser);
@@ -202,5 +214,11 @@ public class UserService implements IUserService {
     public UserResponse getMyInfo() {
         String phoneNumber = authenticationFacade.getCurrentName();
         return getUserByPhoneNumber(phoneNumber);
+    }
+
+    @Override
+    public UserResponse getUserById(Long userId) {
+        UserEntity user = getById(userId);
+        return userConverter.convertToUserResponse(user);
     }
 }

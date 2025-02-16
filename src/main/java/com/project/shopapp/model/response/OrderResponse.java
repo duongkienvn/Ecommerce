@@ -47,6 +47,7 @@ public class OrderResponse {
     String shippingAddress;
 
     @JsonProperty("shipping_date")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     LocalDate shippingDate;
 
     @JsonProperty("tracking_number")

@@ -3,6 +3,7 @@ package com.project.shopapp.config;
 import com.project.shopapp.authentication.CustomAccessDeniedHandler;
 import com.project.shopapp.authentication.CustomJwtDecoder;
 import com.project.shopapp.authentication.CustomAuthenticationEntryPoint;
+import com.project.shopapp.authentication.UserRequestAuthorizationManager;
 import com.project.shopapp.entity.RoleEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ import static org.springframework.http.HttpMethod.*;
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private final CustomJwtDecoder customJwtDecoder;
+    private final UserRequestAuthorizationManager userRequestAuthorizationManager;
 
     @Value("${api.prefix}")
     private String apiPrefix;
@@ -36,6 +38,7 @@ public class WebSecurityConfig {
         String productPath = apiPrefix + "/products/**";
         String orderPath = apiPrefix + "/orders/**";
         String orderDetailPath = apiPrefix + "/order_details/**";
+        String userPath = apiPrefix + "/users/**";
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -49,8 +52,13 @@ public class WebSecurityConfig {
                                         String.format("%s/categories", apiPrefix))
                                 .permitAll()
                                 .requestMatchers(GET,
-                                        categoryPath, productPath, orderPath, orderDetailPath)
+                                        categoryPath, productPath)
                                 .hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
+                                .requestMatchers(GET, orderPath).hasRole(RoleEntity.ADMIN)
+                                .requestMatchers(GET,
+                                        String.format("%s/orders/users/**", apiPrefix),
+                                        userPath)
+                                .access(this.userRequestAuthorizationManager)
                                 .requestMatchers(POST,
                                         categoryPath, productPath).hasRole(RoleEntity.ADMIN)
                                 .requestMatchers(POST,
@@ -58,9 +66,8 @@ public class WebSecurityConfig {
                                 .requestMatchers(PUT,
                                         categoryPath, productPath)
                                 .hasRole(RoleEntity.ADMIN)
-                                .requestMatchers(PUT,
-                                        orderPath, orderDetailPath)
-                                .hasRole(RoleEntity.USER)
+                                .requestMatchers(PUT, userPath)
+                                .access(this.userRequestAuthorizationManager)
                                 .requestMatchers(DELETE,
                                         categoryPath, productPath, orderPath, orderDetailPath)
                                 .hasRole(RoleEntity.ADMIN)

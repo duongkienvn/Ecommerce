@@ -42,6 +42,7 @@ public class JwtUtil {
                 .issueTime(new Date())
                 .expirationTime(new Date(System.currentTimeMillis() + expiration))
                 .claim("scope", buildScope(user))
+                .claim("userId", user.getId())
                 .jwtID(UUID.randomUUID().toString())
                 .build();
 

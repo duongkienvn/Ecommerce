@@ -50,7 +50,6 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> getUserByPhoneNumber(@RequestParam("phone_number") String phoneNumber) {
         return ResponseEntity.ok(new ApiResponse(
                 HttpStatus.OK.value(),
@@ -74,7 +73,6 @@ public class UserController {
     }
 
     @PostMapping("/{id}/change-password")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> changePassword(
             @PathVariable("id") Long userId,
             @RequestParam String currentPassword,
@@ -85,7 +83,6 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> updateUser(@Valid @RequestBody UserUpdateRequest userUpdateRequest,
                                         @PathVariable("id") Long userId) {
         return ResponseEntity.ok(new ApiResponse(
@@ -95,7 +92,6 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Delete user successfully!"));
@@ -107,5 +103,13 @@ public class UserController {
                 HttpStatus.OK.value(),
                 "Get success!",
                 userService.getMyInfo()));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable("userId") Long id) {
+        return ResponseEntity.ok(
+                new ApiResponse(HttpStatus.OK.value(),
+                        "Get user successfully!",
+                        userService.getUserById(id)));
     }
 }

@@ -5,7 +5,7 @@ import com.project.shopapp.exception.AppException;
 import com.project.shopapp.exception.ErrorCode;
 import com.project.shopapp.model.request.IntrospectRequest;
 import com.project.shopapp.model.response.IntrospectResponse;
-import com.project.shopapp.service.AuthenticationService;
+import com.project.shopapp.service.impl.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;

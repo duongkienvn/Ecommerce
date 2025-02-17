@@ -21,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -111,5 +112,14 @@ public class UserController {
                 new ApiResponse(HttpStatus.OK.value(),
                         "Get user successfully!",
                         userService.getUserById(id)));
+    }
+
+    @PatchMapping("/{userId}/password")
+    public ResponseEntity<?> changePassword(@PathVariable Long userId, @RequestBody Map<String, String> passwordMap) {
+        String oldPassword = passwordMap.get("oldPassword");
+        String newPassword = passwordMap.get("newPassword");
+        String confirmNewPassword = passwordMap.get("confirmNewPassword");
+        this.userService.changePassword(userId, oldPassword, newPassword, confirmNewPassword);
+        return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Change Password Success"));
     }
 }

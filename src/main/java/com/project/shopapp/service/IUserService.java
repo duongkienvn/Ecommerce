@@ -23,4 +23,5 @@ public interface IUserService {
     void changePassword(Long userId, String currentPassword, ChangePassword changePassword);
     UserResponse getMyInfo();
     UserResponse getUserById(Long userId);
+    void changePassword(Long userId, String oldPassword, String newPassword, String confirmNewPassword);
 }

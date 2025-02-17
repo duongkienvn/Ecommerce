@@ -24,9 +24,10 @@ public enum ErrorCode {
     DATA_INTEGRITY_VIOLATION("Phone number has already existed!", HttpStatus.BAD_REQUEST),
     COMMENT_NOT_FOUND("Comment not existed!", HttpStatus.NOT_FOUND),
     EMAIL_NOT_FOUND("Email not existed!", HttpStatus.NOT_FOUND),
-    INVALID_PASSWORD("Current Password is wrong!", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD("Password is wrong!", HttpStatus.BAD_REQUEST),
     HMAC_EXCEPTION("Error generating HMAC-SHA512", HttpStatus.INTERNAL_SERVER_ERROR),
-    ILLEGAL_ARGUMENT("Key or data must not be null", HttpStatus.BAD_REQUEST)
+    ILLEGAL_ARGUMENT("Key or data must not be null", HttpStatus.BAD_REQUEST),
+    TOKEN_BAD_CREDENTIALS("Invalid Token", HttpStatus.BAD_REQUEST)
     ;
 
     private final String message;

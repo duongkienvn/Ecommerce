@@ -2,24 +2,23 @@ package com.project.shopapp.service.impl;
 
 import com.nimbusds.jose.KeyLengthException;
 import com.project.shopapp.authentication.AuthenticationFacade;
-import com.project.shopapp.entity.CartEntity;
-import com.project.shopapp.exception.*;
-import com.project.shopapp.model.dto.ChangePassword;
-import com.project.shopapp.model.request.UserUpdateRequest;
-import com.project.shopapp.model.response.UserResponse;
-import com.project.shopapp.repository.CartRepository;
-import com.project.shopapp.utils.jwt.JwtUtil;
 import com.project.shopapp.converter.UserConverter;
+import com.project.shopapp.entity.CartEntity;
 import com.project.shopapp.entity.RoleEntity;
 import com.project.shopapp.entity.UserEntity;
+import com.project.shopapp.exception.AppException;
+import com.project.shopapp.exception.ErrorCode;
+import com.project.shopapp.model.dto.ChangePassword;
 import com.project.shopapp.model.dto.UserDto;
 import com.project.shopapp.model.dto.UserLoginDto;
+import com.project.shopapp.model.request.UserUpdateRequest;
+import com.project.shopapp.model.response.UserResponse;
 import com.project.shopapp.repository.RoleRepository;
 import com.project.shopapp.repository.UserRepostiory;
 import com.project.shopapp.service.IUserService;
+import com.project.shopapp.utils.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -42,6 +41,7 @@ public class UserService implements IUserService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final AuthenticationFacade authenticationFacade;
+    private final RedisCacheClient redisCacheClient;
 
     @Override
     public UserResponse createUser(UserDto userDto) {
@@ -88,10 +88,8 @@ public class UserService implements IUserService {
         }
 
         UserEntity existingUser = user.get();
-        if (existingUser.getGoogleAccountId() == 0 && existingUser.getFacebookAccountId() == 0) {
-            if (!passwordEncoder.matches(password, existingUser.getPassword())) {
-                throw new AppException(ErrorCode.BAD_CREDENTIALS);
-            }
+        if (!passwordEncoder.matches(password, existingUser.getPassword())) {
+            throw new AppException(ErrorCode.BAD_CREDENTIALS);
         }
 
         UsernamePasswordAuthenticationToken authenticationToken
@@ -99,7 +97,11 @@ public class UserService implements IUserService {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         if (authentication.isAuthenticated()) {
             try {
-                return jwtUtil.generateToken(existingUser);
+                String token = jwtUtil.generateToken(existingUser);
+                String key = "whitelist:" + existingUser.getId();
+                this.redisCacheClient.set(key, token);
+                this.redisCacheClient.setTimeToLive(key, 1);
+                return token;
             } catch (KeyLengthException e) {
                 throw new RuntimeException(e);
             }
@@ -201,9 +203,10 @@ public class UserService implements IUserService {
         } else {
             exisitingUser.setFullName(userUpdateRequest.getFullName());
             RoleEntity role = roleRepository.findById(userUpdateRequest.getRoleId())
-                            .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
+                    .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_EXISTED));
             exisitingUser.setRoleEntity(role);
             exisitingUser.setActive(userUpdateRequest.getActive());
+            this.redisCacheClient.delete("whitelist:" + id);
         }
 
         userRepostiory.save(exisitingUser);
@@ -220,5 +223,23 @@ public class UserService implements IUserService {
     public UserResponse getUserById(Long userId) {
         UserEntity user = getById(userId);
         return userConverter.convertToUserResponse(user);
+    }
+
+    @Override
+    public void changePassword(Long userId, String oldPassword, String newPassword, String confirmNewPassword) {
+        UserEntity user = getById(userId);
+
+        if (!this.passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        if (!newPassword.equals(confirmNewPassword)) {
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        user.setPassword(this.passwordEncoder.encode(newPassword));
+
+        this.redisCacheClient.delete("whitelist:" + userId);
+        this.userRepostiory.save(user);
     }
 }

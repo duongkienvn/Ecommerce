@@ -59,6 +59,7 @@ public class WebSecurityConfig {
                                         String.format("%s/orders/users/**", apiPrefix),
                                         userPath)
                                 .access(this.userRequestAuthorizationManager)
+                                .requestMatchers(PATCH, userPath).access(this.userRequestAuthorizationManager)
                                 .requestMatchers(POST,
                                         categoryPath, productPath).hasRole(RoleEntity.ADMIN)
                                 .requestMatchers(POST,

@@ -1,7 +1,5 @@
 package com.project.shopapp.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.project.shopapp.converter.ProductRequestMapper;
 import com.project.shopapp.entity.CategoryEntity;
 import com.project.shopapp.entity.ProductEntity;
@@ -19,13 +17,15 @@ import com.project.shopapp.repository.CategoryRepository;
 import com.project.shopapp.repository.ProductImageRepository;
 import com.project.shopapp.repository.ProductRepository;
 import com.project.shopapp.service.IProductService;
+import com.project.shopapp.specification.ProductSpecs;
 import com.project.shopapp.utils.redis.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -145,9 +145,6 @@ public class ProductService implements IProductService {
 
         String getCachedKey = PRODUCT_CACHE_PREFIX + "page:*";
         clearAllProductsCache(getCachedKey);
-
-        String searchCachedKey = PRODUCT_CACHE_PREFIX + "find:*";
-        clearAllProductsCache(searchCachedKey);
     }
 
     private void clearAllProductsCache(String pattern) {
@@ -178,34 +175,41 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public Page<ProductResponse> findProduct(Map<String, Object> productMap, Pageable pageable) {
-        String cachedKey = PRODUCT_CACHE_PREFIX + "find:" + productMap.hashCode()
-                + ":page:" + pageable.getPageNumber()
-                + ":size:" + pageable.getPageSize()
-                + ":sort:" + pageable.getSort();
+    public Page<ProductResponse> findProductsByCriteria(Map<String, String> searchCriteria, Pageable pageable) {
+        Specification<ProductEntity> specification = Specification.where(null);
+        String valueId = searchCriteria.get("id");
+        String valueName = searchCriteria.get("name");
+        String valueDescription = searchCriteria.get("description");
+        String valueMinPrice = searchCriteria.get("minPrice");
+        String valueMaxPrice = searchCriteria.get("maxPrice");
+        String valueCategoryId = searchCriteria.get("categoryId");
 
-        Object cachedData = baseRedisService.get(cachedKey);
-        if (Objects.nonNull(cachedData)) {
-            PageResponse<List<ProductResponse>> cachedProducts = RedisUtil.convertValue(cachedData, PageResponse.class);
-            return new PageImpl<>(cachedProducts.getData(), pageable,
-                    pageable.getPageSize() * cachedProducts.getTotalPages());
+        if (StringUtils.hasLength(valueId)) {
+            specification = specification.and(ProductSpecs.fieldEquals("id", valueId));
         }
 
-        ProductRequest productRequest = ProductRequestMapper.toProductRequest(productMap);
-        Page<ProductEntity> productEntities = productRepository.findProduct(productRequest, pageable);
+        if (StringUtils.hasLength(valueName)) {
+            specification = specification.and(ProductSpecs.fieldContains("name", valueName));
+        }
 
-        List<ProductResponse> productResponses = productEntities
-                .stream()
-                .map(ProductResponse::fromProduct)
-                .toList();
+        if (StringUtils.hasLength(valueDescription)) {
+            specification = specification.and(ProductSpecs.fieldContains("description", valueDescription));
+        }
 
-        PageResponse pageResponse = PageResponse.builder()
-                .data(productResponses)
-                .totalPages(productEntities.getTotalPages())
-                .build();
+        if (StringUtils.hasLength(valueMinPrice)) {
+            specification = specification.and(ProductSpecs.priceGreaterThan(Float.valueOf(valueMinPrice)));
+        }
 
-        setProductToRedis(cachedKey, pageResponse);
+        if (StringUtils.hasLength(valueMaxPrice)) {
+            specification = specification.and(ProductSpecs.priceLowerThan(Float.valueOf(valueMaxPrice)));
+        }
 
-        return new PageImpl<>(productResponses, pageable, productEntities.getTotalElements());
+        if (StringUtils.hasLength(valueCategoryId)) {
+            specification = specification.and(ProductSpecs.fieldEquals("category.id", Long.valueOf(valueCategoryId)));
+        }
+
+        Page<ProductEntity> productEntityPage = this.productRepository.findAll(specification, pageable);
+        Page<ProductResponse> productResponsePage = productEntityPage.map(ProductResponse::fromProduct);
+        return productResponsePage;
     }
 }

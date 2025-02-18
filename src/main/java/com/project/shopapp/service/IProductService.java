@@ -22,5 +22,5 @@ public interface IProductService {
     Page<ProductResponse> getAllProducts(Pageable pageable);
     void deleteProduct(Long id);
     ProductImageResponse createProductImage(ProductImageDto productImageDto);
-    Page<ProductResponse> findProduct(Map<String, Object> productMap, Pageable pageable);
+    Page<ProductResponse> findProductsByCriteria(Map<String, String> searchCriteria, Pageable pageable);
 }

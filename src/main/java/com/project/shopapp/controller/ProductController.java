@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,15 +39,15 @@ public class ProductController {
     private final IProductService productService;
 
     @GetMapping("/search")
-    public ResponseEntity<?> findProduct(Pageable pageable, @RequestParam Map<String, Object> productMap) {
-
-        Page<ProductResponse> productResponsePage = productService.findProduct(productMap, pageable);
-        List<ProductResponse> productResponseList = productResponsePage.getContent();
+    public ResponseEntity<?> findProductsByCriteria(@RequestParam Map<String, String> searchCriteria,
+                                                    @PageableDefault(size = 10) Pageable pageable) {
+        Page<ProductResponse> productResponsePage = productService.findProductsByCriteria(searchCriteria, pageable);
+        List<ProductResponse> productResponses = productResponsePage.getContent();
         int totalPages = productResponsePage.getTotalPages();
 
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Find product successfully!",
                 PageResponse.builder()
-                .data(productResponseList)
+                .data(productResponses)
                 .totalPages(totalPages)
                 .build()));
     }

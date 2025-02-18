@@ -49,7 +49,8 @@ public class WebSecurityConfig {
                                         String.format("%s/auth/logout", apiPrefix),
                                         String.format("%s/auth/refresh", apiPrefix),
                                         String.format("%s/products", apiPrefix),
-                                        String.format("%s/categories", apiPrefix))
+                                        String.format("%s/categories", apiPrefix),
+                                        String.format("%s/products/search", apiPrefix))
                                 .permitAll()
                                 .requestMatchers(GET,
                                         categoryPath, productPath)

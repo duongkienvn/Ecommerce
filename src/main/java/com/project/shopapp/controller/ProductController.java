@@ -47,7 +47,7 @@ public class ProductController {
 
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Find product successfully!",
                 PageResponse.builder()
-                .data(productResponses)
+                .content(productResponses)
                 .totalPages(totalPages)
                 .build()));
     }
@@ -73,7 +73,7 @@ public class ProductController {
 
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all products successfully!",
                 PageResponse.builder()
-                .data(productResponses)
+                .content(productResponses)
                 .totalPages(totalPages)
                 .build()));
     }

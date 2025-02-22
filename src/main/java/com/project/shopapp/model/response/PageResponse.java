@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PageResponse<T> {
     private int totalPages;
-    private T data;
+    private T content;
 }

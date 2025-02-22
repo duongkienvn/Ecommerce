@@ -80,7 +80,7 @@ public class CartController {
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all products from cart successfully!",
                 PageResponse.builder()
                         .totalPages(totalPages)
-                        .data(productResponses)
+                        .content(productResponses)
                         .build()));
     }
 

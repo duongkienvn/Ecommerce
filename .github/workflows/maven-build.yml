@@ -1,6 +1,6 @@
 name: Java CI with Maven
 env:
-    SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+    SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3308/shopapp #${{ secrets.SPRING_DATASOURCE_URL }}
     SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
     SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 on:

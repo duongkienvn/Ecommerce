@@ -36,8 +36,10 @@ public class OrderService implements IOrderService {
         UserEntity user = userRepostiory.findById(orderDto.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        modelMapper.typeMap(OrderDto.class, OrderEntity.class)
-                .addMappings(mapper -> mapper.skip(OrderEntity::setId));
+//        if (modelMapper.getTypeMap(OrderDto.class, OrderEntity.class) == null) {
+//            modelMapper.createTypeMap(OrderDto.class, OrderEntity.class)
+//                    .addMappings(mapper -> mapper.skip(OrderEntity::setId));
+//        }
 
         OrderEntity order = new OrderEntity();
         modelMapper.map(orderDto, order);

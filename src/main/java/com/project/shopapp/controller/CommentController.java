@@ -67,7 +67,7 @@ public class CommentController {
 
         return ResponseEntity.ok(new ApiResponse(OK.value(), "Get all comments by user's id successfully!",
                 PageResponse.builder()
-                        .data(commentResponses)
+                        .content(commentResponses)
                         .totalPages(totalPages).build()));
     }
 
@@ -80,7 +80,7 @@ public class CommentController {
 
         return ResponseEntity.ok(new ApiResponse(OK.value(), "Get all comments by product's id successfully!",
                 PageResponse.builder()
-                        .data(commentResponses)
+                        .content(commentResponses)
                         .totalPages(totalPages)
                         .build()));
     }

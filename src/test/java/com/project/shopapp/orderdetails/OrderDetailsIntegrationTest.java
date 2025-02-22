@@ -55,7 +55,7 @@
 //                .perform(post(baseUrl + "/users/login").contentType(MediaType.APPLICATION_JSON_VALUE)
 //                        .content(new ObjectMapper()
 //                                .writeValueAsString(
-//                                        new UserLoginDto("3848394455", "securepassword"))));
+//                                        new UserLoginDto("0987654322", "123456"))));
 //        MvcResult userMvcResult = userResultActions.andDo(print()).andReturn();
 //        String userContent = userMvcResult.getResponse().getContentAsString();
 //        JSONObject userJsonObject = new JSONObject(userContent);

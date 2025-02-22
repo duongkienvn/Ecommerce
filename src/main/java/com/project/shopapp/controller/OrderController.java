@@ -1,6 +1,7 @@
 package com.project.shopapp.controller;
 
 import com.project.shopapp.converter.OrderConverter;
+import com.project.shopapp.entity.OrderEntity;
 import com.project.shopapp.model.dto.OrderDto;
 import com.project.shopapp.model.response.ApiResponse;
 import com.project.shopapp.model.response.OrderResponse;
@@ -35,8 +36,9 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getOrderById(@PathVariable Long id) {
+        OrderEntity order = orderService.getOrderById(id);
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get order successfully!",
-                orderConverter.convertToOrderResponse(orderService.getOrderById(id))));
+                orderConverter.convertToOrderResponse(order)));
     }
 
     @PutMapping("/{id}")
@@ -67,7 +69,7 @@ public class OrderController {
 
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all orders successfully!",
                 PageResponse.builder()
-                .data(orderResponses)
+                .content(orderResponses)
                 .totalPages(totalPages)
                 .build()));
     }

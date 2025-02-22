@@ -52,7 +52,7 @@ public class CategoryController {
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(), "Get all categories successfully!",
                 PageResponse.builder()
                 .totalPages(totalPage)
-                .data(categoryResponses).build()));
+                .content(categoryResponses).build()));
     }
 
     @DeleteMapping("/{id}")

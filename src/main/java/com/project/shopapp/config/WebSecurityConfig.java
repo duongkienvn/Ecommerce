@@ -55,7 +55,6 @@ public class WebSecurityConfig {
                                 .requestMatchers(GET,
                                         categoryPath, productPath)
                                 .hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
-                                .requestMatchers(GET, orderPath).hasRole(RoleEntity.ADMIN)
                                 .requestMatchers(GET,
                                         String.format("%s/orders/users/**", apiPrefix),
                                         userPath)

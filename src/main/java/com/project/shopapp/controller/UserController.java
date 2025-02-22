@@ -68,7 +68,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse(HttpStatus.OK.value(),
                 "Get all users successfully!",
                 PageResponse.builder()
-                        .data(userResponseList)
+                        .content(userResponseList)
                         .totalPages(totalPages)
                         .build()));
     }

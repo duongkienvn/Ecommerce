@@ -1,8 +1,8 @@
 name: Java CI with Maven
-env:
-    SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
-    SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-    SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+#env:
+#    SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+#    SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+#    SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 on:
   pull_request:
     branches:
@@ -19,7 +19,7 @@ jobs:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
         ports:
-          - 3308:3306
+          - 3306:3306
 #        options:
 #          --health-cmd="mysqladmin ping -h mysql -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
 #          --health-interval=10s

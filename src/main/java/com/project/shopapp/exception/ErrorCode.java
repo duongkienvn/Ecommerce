@@ -12,7 +12,7 @@ public enum ErrorCode {
     DATA_NOT_FOUND("Invalid phonenumber or password!", HttpStatus.BAD_REQUEST),
     VALIDATION_ERROR("Validation failed!", HttpStatus.BAD_REQUEST),
     UNMATCHED_PASSWORD("Password is unmatched!", HttpStatus.BAD_REQUEST),
-    CATEGORY_NOT_FOUND("Category not found", HttpStatus.BAD_REQUEST),
+    CATEGORY_NOT_FOUND("Category not found", HttpStatus.NOT_FOUND),
     PRODUCT_NOT_FOUND("Product not found", HttpStatus.NOT_FOUND),
     ORDER_NOT_FOUND("Order not found", HttpStatus.NOT_FOUND),
     ORDER_DETAILS_NOT_FOUND("Order_Details not found", HttpStatus.NOT_FOUND),

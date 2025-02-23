@@ -43,19 +43,19 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles(value = "dev")
 public class OrderServiceTest {
     @Mock
-    OrderRepository orderRepository;
+    private OrderRepository orderRepository;
 
     @Mock
-    UserRepostiory userRepostiory;
+    private UserRepostiory userRepostiory;
 
     @Mock
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     @Mock
-    OrderConverter orderConverter;
+    private OrderConverter orderConverter;
 
     @InjectMocks
-    OrderService orderService;
+    private OrderService orderService;
 
     private UserEntity user;
     private OrderDto orderDto;

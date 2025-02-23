@@ -37,17 +37,17 @@
 //@ActiveProfiles(value = "dev")
 //public class OrderIntegrationTest {
 //    @Autowired
-//    MockMvc mockMvc;
+//    private MockMvc mockMvc;
 //
 //    @Autowired
-//    ObjectMapper objectMapper;
+//    private ObjectMapper objectMapper;
 //
 //    @Value("${api.prefix}")
-//    String baseUrl;
+//    private String baseUrl;
 //
-//    OrderDto orderDto;
-//    String adminToken;
-//    String userToken;
+//    private OrderDto orderDto;
+//    private String adminToken;
+//    private String userToken;
 //
 //    @BeforeEach
 //    void setUp() throws Exception {

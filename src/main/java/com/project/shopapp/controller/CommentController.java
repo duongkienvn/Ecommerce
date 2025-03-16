@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,6 @@ public class CommentController {
     private final ICommentService commentService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<ApiResponse> addComment(@Valid @RequestBody CommentDto commentDto) {
         return ResponseEntity.status(CREATED).body(new ApiResponse(CREATED.value(),
                 "Add comment successfully!",
@@ -37,7 +37,6 @@ public class CommentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> updateComment(@PathVariable("id") Long id, @Valid @RequestBody CommentUpdateRequest request) {
         return ResponseEntity.ok(
                 new ApiResponse(OK.value(), "Update comment successfully!",
@@ -45,22 +44,22 @@ public class CommentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     public ResponseEntity<?> deleteComment(@PathVariable("id") Long id) {
         commentService.deleteComment(id);
         return ResponseEntity.ok(new ApiResponse(OK.value(), "Delete Comment successfully!"));
     }
 
     @DeleteMapping("/bulk-delete")
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteComments(@RequestBody List<Long> ids) {
         commentService.deleteComments(ids);
         return ResponseEntity.ok(new ApiResponse(OK.value(), "Delete Comments successfully!"));
     }
 
     @GetMapping("/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getCommentsByUserId(@PathVariable("id") Long userId, Pageable pageable) {
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getCommentsByUserId(@PathVariable("id") Long userId,
+                                                 @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<CommentResponse> commentResponsePage = commentService.getAllCommentsByUserId(userId, pageable);
         List<CommentResponse> commentResponses = commentResponsePage.getContent();
         int totalPages = commentResponsePage.getTotalPages();
@@ -72,8 +71,9 @@ public class CommentController {
     }
 
     @GetMapping("/products/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    public ResponseEntity<?> getCommentsByProductId(@PathVariable("id") Long productId, Pageable pageable) {
+//    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    public ResponseEntity<?> getCommentsByProductId(@PathVariable("id") Long productId,
+                                                    @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<CommentResponse> commentResponsePage = commentService.getAllCommentsByProductId(productId, pageable);
         List<CommentResponse> commentResponses = commentResponsePage.getContent();
         int totalPages = commentResponsePage.getTotalPages();

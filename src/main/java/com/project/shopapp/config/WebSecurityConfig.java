@@ -39,7 +39,7 @@ public class WebSecurityConfig {
         String orderPath = apiPrefix + "/orders/**";
         String orderDetailPath = apiPrefix + "/order_details/**";
         String userPath = apiPrefix + "/users/**";
-
+        String commentPath = apiPrefix + "/comments";
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request ->
@@ -52,6 +52,7 @@ public class WebSecurityConfig {
                                         String.format("%s/categories", apiPrefix),
                                         String.format("%s/products/search", apiPrefix))
                                 .permitAll()
+                                .requestMatchers(GET, commentPath + "/users/**").hasRole(RoleEntity.ADMIN)
                                 .requestMatchers(GET,
                                         categoryPath, productPath)
                                 .hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
@@ -70,7 +71,7 @@ public class WebSecurityConfig {
                                 .requestMatchers(PUT, userPath)
                                 .access(this.userRequestAuthorizationManager)
                                 .requestMatchers(DELETE,
-                                        categoryPath, productPath, orderPath, orderDetailPath)
+                                        categoryPath, productPath, orderPath, orderDetailPath, commentPath + "/bulk-delete")
                                 .hasRole(RoleEntity.ADMIN)
                                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

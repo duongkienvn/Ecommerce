@@ -18,7 +18,7 @@ public class OrderDto {
     Long userId;
 
     @JsonProperty("fullname")
-    String fullName;
+    String fullname;
 
     String email;
 

@@ -43,6 +43,6 @@ public class UserDto {
     Long roleId;
 
     @Email(message = "Email does not correct pattern!")
-    @NotBlank(message = "Email mustnt' blank!")
+    @NotBlank(message = "Email must not be blank!")
     String email;
 }

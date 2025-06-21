@@ -22,9 +22,7 @@ public class UserEntity extends BaseEntity {
     @Column(name = "fullname", length = 100)
     String fullName;
 
-    @Column(name = "phone_number", length = 10,
-            nullable = false, unique = true,
-            columnDefinition = "VARCHAR(255) COLLATE utf8mp4_unicode_ci")
+    @Column(name = "phone_number", length = 10, nullable = false, unique = true)
     String phoneNumber;
 
     @Column(name = "address", length = 200)

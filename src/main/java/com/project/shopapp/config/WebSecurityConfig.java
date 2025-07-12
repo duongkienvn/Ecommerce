@@ -57,8 +57,7 @@ public class WebSecurityConfig {
                                         categoryPath, productPath)
                                 .hasAnyRole(RoleEntity.ADMIN, RoleEntity.USER)
                                 .requestMatchers(GET,
-                                        String.format("%s/orders/users/**", apiPrefix),
-                                        userPath)
+                                        String.format("%s/orders/users/**", apiPrefix), userPath)
                                 .access(this.userRequestAuthorizationManager)
                                 .requestMatchers(PATCH, userPath).access(this.userRequestAuthorizationManager)
                                 .requestMatchers(POST,
@@ -74,7 +73,6 @@ public class WebSecurityConfig {
                                         categoryPath, productPath, orderPath, orderDetailPath, commentPath + "/bulk-delete")
                                 .hasRole(RoleEntity.ADMIN)
                                 .anyRequest().authenticated())
-                .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oath2 -> oath2.jwt(jwtConfigurer -> jwtConfigurer
                         .decoder(customJwtDecoder)
@@ -82,7 +80,7 @@ public class WebSecurityConfig {
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
                 .exceptionHandling(ex -> ex.accessDeniedHandler(new CustomAccessDeniedHandler())
                         .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
-                .oauth2Login(Customizer.withDefaults())
+//                .oauth2Login(Customizer.withDefaults())
                 .build();
     }
 

@@ -58,12 +58,12 @@ public class OrderControllerTest {
     void setUp() {
         orderDto = new OrderDto();
         orderDto.setUserId(1L);
-        orderDto.setFullName("duongkien");
+        orderDto.setFullname("duongkien");
         orderDto.setPhoneNumber("12345");
 
         orderResponse = new OrderResponse();
         orderResponse.setUserId(orderDto.getUserId());
-        orderResponse.setFullName(orderDto.getFullName());
+        orderResponse.setFullName(orderDto.getFullname());
         orderResponse.setPhoneNumber(orderDto.getPhoneNumber());
     }
 
@@ -102,11 +102,11 @@ public class OrderControllerTest {
     @Test
     void testUpdateOrder_Success() throws Exception {
         orderDto.setUserId(2l);
-        orderDto.setFullName("kien");
+        orderDto.setFullname("kien");
         String json = objectMapper.writeValueAsString(orderDto);
 
         orderResponse.setUserId(orderDto.getUserId());
-        orderResponse.setFullName(orderDto.getFullName());
+        orderResponse.setFullName(orderDto.getFullname());
 
         when(orderService.updateOrder(any(OrderDto.class), eq(1l))).thenReturn(orderResponse);
 
@@ -122,11 +122,11 @@ public class OrderControllerTest {
     @Test
     void testUpdateOrder_OrderNotFound() throws Exception {
         orderDto.setUserId(2l);
-        orderDto.setFullName("kien");
+        orderDto.setFullname("kien");
         String json = objectMapper.writeValueAsString(orderDto);
 
         orderResponse.setUserId(orderDto.getUserId());
-        orderResponse.setFullName(orderDto.getFullName());
+        orderResponse.setFullName(orderDto.getFullname());
 
         ErrorCode errorCode = ErrorCode.ORDER_NOT_FOUND;
         when(orderService.updateOrder(any(OrderDto.class), eq(1l)))
@@ -143,11 +143,11 @@ public class OrderControllerTest {
     @Test
     void testUpdateOrder_UserNotFound() throws Exception {
         orderDto.setUserId(2l);
-        orderDto.setFullName("kien");
+        orderDto.setFullname("kien");
         String json = objectMapper.writeValueAsString(orderDto);
 
         orderResponse.setUserId(orderDto.getUserId());
-        orderResponse.setFullName(orderDto.getFullName());
+        orderResponse.setFullName(orderDto.getFullname());
 
         ErrorCode errorCode = ErrorCode.USER_NOT_EXISTED;
         when(orderService.updateOrder(any(OrderDto.class), eq(1l)))

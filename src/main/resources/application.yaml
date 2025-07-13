@@ -3,10 +3,14 @@ server:
     8081
 spring:
   datasource:
-    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/shopapp}
-    driver-class-name: "com.mysql.cj.jdbc.Driver"
-    username: ${DBMS_USERNAME:root}
-    password: ${DBMS_PASSWORD:kien2005}
+  #    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/shopapp}
+  #    driver-class-name: "com.mysql.cj.jdbc.Driver"
+  #    username: ${DBMS_USERNAME:root}
+  #    password: ${DBMS_PASSWORD:kien2005}
+    url: ${DBMS_CONNECTION}
+    username: ${DBMS_USERNAME}
+    password: ${DBMS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: none
@@ -20,14 +24,14 @@ spring:
       max-request-size: 10MB
   security:
     oauth2:
-        client:
-          registration:
-            github:
-              client-id: ${GITHUB_CLIENT_ID}
-              client-secret: ${GITHUB_CLIENT_SECRET}
-            google:
-              client-id: ${GOOGLE_CLIENT_ID}
-              client-secret: ${GOOGLE_CLIENT_SECRET}
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
   redis:
     host: localhost
     port: 6379

@@ -7,9 +7,13 @@ spring:
   #    driver-class-name: "com.mysql.cj.jdbc.Driver"
   #    username: ${DBMS_USERNAME:root}
   #    password: ${DBMS_PASSWORD:kien2005}
-    url: ${DBMS_CONNECTION}
-    username: ${DBMS_USERNAME}
-    password: ${DBMS_PASSWORD}
+#    url: ${DBMS_CONNECTION}
+#    username: ${DBMS_USERNAME}
+#    password: ${DBMS_PASSWORD}
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://shortline.proxy.rlwy.net:45479/railway
+    username: root
+    password: HHrNokwLfcNJgSOTjHRaegVAoFKmKKkc
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:

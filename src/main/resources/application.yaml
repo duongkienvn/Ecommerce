@@ -11,10 +11,6 @@ spring:
     username: ${DBMS_USERNAME}
     password: ${DBMS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://shortline.proxy.rlwy.net:45479/railway
-#    username: root
-#    password: HHrNokwLfcNJgSOTjHRaegVAoFKmKKkc
-#    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: none
